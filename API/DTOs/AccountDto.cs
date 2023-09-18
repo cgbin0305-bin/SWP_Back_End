@@ -1,4 +1,6 @@
 
+using API.Entities;
+
 namespace API.DTOs
 {
     public class AccountDto
@@ -8,5 +10,7 @@ namespace API.DTOs
         public decimal Fee { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
+
+        public List<HouseHoldChoresDto> chores { set; get; }
     }
 }

@@ -1,12 +1,16 @@
 
-using System.ComponentModel;
-using System.Globalization;
+
+using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices.ComTypes;
+using System.Security.Cryptography.X509Certificates;
 using API.DTOs;
 using API.Entities;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace API.Controllers
 {
@@ -58,12 +62,12 @@ namespace API.Controllers
                 if (decimal.TryParse(input, out outputDecimal))
                 {
                     page = (int)Math.Floor(outputDecimal);
-                    currentPage = page + 1;
                 }
                 else
                 {
                     page = 0;
                 }
+                currentPage = page + 1;
             }
 
             if (page < 0 || page > pageCount)
@@ -71,32 +75,58 @@ namespace API.Controllers
                 return BadRequest("The result were not found");
             }
 
-            List<AccountDto> list = new List<AccountDto>();
-            List<HouseHoldChoresDto> listChores = new List<HouseHoldChoresDto>();
-            var workers = await _context.Workers.Where(x => x.Status == true)
-            .Skip((page) * (int)pageResults)
-            .Take((int)pageResults)
-            .ToListAsync();
-            foreach (var worker in workers)
+            List<AccountDto> WorkerList = new List<AccountDto>();
+
+            var qr = (from a in _context.Workers_Chores
+                      where a.Worker.Status == true
+                      group a by a.WorkerId into gr
+                      select new
+                      {
+                          Worker = _context.Workers.FirstOrDefault(w => w.Id == gr.Key),
+                          ListChores = gr.ToList()
+                      }).Skip(page * (int)pageResults)
+                      .Take((int)pageResults)
+                      .ToList();
+
+
+            foreach (var item in qr)
             {
-                AccountDto dto = new AccountDto()
+                List<HouseHoldChoresDto> houseHoldChoresList = new List<HouseHoldChoresDto>();
+                foreach (var Chore in item.ListChores)
                 {
-                    Id = worker.Id,
-                    Name = worker.Name,
-                    Email = worker.Email,
-                    Fee = worker.Fee,
-                    Phone = worker.Phone
+                    var entry = _context.Entry(Chore);
+                    await entry.Reference(x => x.Chore).LoadAsync();
+
+                    HouseHoldChoresDto dto = new HouseHoldChoresDto()
+                    {
+                        Id = Chore.ChoreId,
+                        Name = Chore.Chore.ChoresName,
+                        Description = Chore.Chore.Description
+                    };
+                    houseHoldChoresList.Add(dto);
+                }
+
+                AccountDto accountDto = new AccountDto()
+                {
+                    Id = item.Worker.Id,
+                    Name = item.Worker.Name,
+                    Email = item.Worker.Email,
+                    Fee = item.Worker.Fee,
+                    Phone = item.Worker.Phone,
+                    chores = houseHoldChoresList
                 };
-                list.Add(dto);
+                WorkerList.Add(accountDto);
             }
             var Response = new AccountResponseDto()
             {
-                Accounts = list,
+                Accounts = WorkerList,
                 CurrentPage = currentPage,
-                Elements = list.Count,
+                Elements = WorkerList.Count,
                 Pages = (int)pageCount
             };
             return Ok(Response);
         }
+
+
     }
 }

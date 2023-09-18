@@ -7,5 +7,6 @@ namespace API.DTOs
         public int CurrentPage { get; set; }
         public int Pages { get; set; } // Total of page
         public int Elements { get; set; }
+
     }
 }

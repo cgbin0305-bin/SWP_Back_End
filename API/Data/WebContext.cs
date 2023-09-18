@@ -9,6 +9,7 @@ namespace API.Entities
         public DbSet<Worker> Workers { set; get; }
         public DbSet<OrderHistory> OrderHistories { set; get; }
         public DbSet<HouseHoldChores> HouseHoldChores { set; get; }
+        public DbSet<Workers_Chores> Workers_Chores { get; set; }
         public WebContext(DbContextOptions options) : base(options)
         {
         }
