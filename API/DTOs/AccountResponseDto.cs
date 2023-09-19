@@ -5,8 +5,7 @@ namespace API.DTOs
     {
         public List<AccountDto> Accounts { set; get; }
         public int CurrentPage { get; set; }
-        public int Pages { get; set; } // Total of page
-        public int Elements { get; set; }
-
+        public int PageSize { get; set; }
+        public int TotalElements { get; set; }
     }
 }

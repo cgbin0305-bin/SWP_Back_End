@@ -41,7 +41,8 @@ namespace API.Controllers
             int page = 0;
             int currentPage = 0;
             var pageResults = 12f;
-            var pageCount = Math.Ceiling(_context.Workers.Count() / pageResults);
+            var totalElements = _context.Workers.Where(x => x.Status == true);
+            var pageCount = Math.Ceiling(totalElements.Count() / pageResults);
             try
             {
                 if (string.IsNullOrEmpty(pageString))
@@ -52,7 +53,7 @@ namespace API.Controllers
                 {
                     page = Int32.Parse(pageString);
                 }
-                currentPage = page + 1;
+                currentPage = page;
 
             }
             catch (System.Exception)
@@ -67,7 +68,7 @@ namespace API.Controllers
                 {
                     page = 0;
                 }
-                currentPage = page + 1;
+                currentPage = page;
             }
 
             if (page < 0 || page > pageCount)
@@ -121,8 +122,8 @@ namespace API.Controllers
             {
                 Accounts = WorkerList,
                 CurrentPage = currentPage,
-                Elements = WorkerList.Count,
-                Pages = (int)pageCount
+                TotalElements = totalElements.Count(),
+                PageSize = (int)pageResults
             };
             return Ok(Response);
         }
