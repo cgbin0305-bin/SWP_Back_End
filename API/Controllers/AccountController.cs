@@ -1,8 +1,10 @@
+using System.Text;
 using API.DTOs;
 using API.Entities;
 using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 namespace API.Controllers
 {
     public class AccountController : BaseApiController
@@ -17,66 +19,59 @@ namespace API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<WorkerDto>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             // Check if there email or phone is exist
             if (await WorkerExist(registerDto.Email, registerDto.Phone))
             {
                 return BadRequest("This worker is taken by email or phone number");
             }
-            // set all prop in registerDto into worker then add into Workers table
-            var worker = new Worker()
+            // set all prop in registerDto into user and worker table
+            using var hmac = new HMACSHA512();
+            var user = new User()
             {
                 Name = registerDto.Name,
-                Password = registerDto.Password,
-                Email = registerDto.Email.ToLower(),
-                Fee = 0,
-                IsAdmin = false,
-                Status = false,
+                Email = registerDto.Email,
                 Phone = registerDto.Phone,
-                Version = 0,
+                Role = "Guest",
+                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
+                PasswordSalt = hmac.Key
             };
 
-            _context.Workers.Add(worker);
-            await _context.SaveChangesAsync();
-            // add chores id of worker , and worker id into table Workers_Chores table
-            foreach (var choresId in registerDto.RoleChores)
-            {
-                _context.Workers_Chores.Add(new Workers_Chores
-                {
-                    WorkerId = worker.Id,
-                    ChoreId = choresId
-                });
-            }
-
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
             // return to client worker name and there token
-            return new WorkerDto
+            return new UserDto
             {
-                Name = worker.Name,
-                Token = _tokenService.CreateToken(worker)
+                Name = user.Name,
+                Token = _tokenService.CreateToken(user)
             };
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<WorkerDto>> Login(LoginDto loginDto)
-        {   
-            // check if worker email is not exist
-            var worker = await _context.Workers.FirstOrDefaultAsync(worker => worker.Email.Equals(loginDto.Email));
-            if (worker is null) return Unauthorized("Invalid Email");
-            // check if worker password is not match
-            if (!worker.Password.Equals(loginDto.Password)) return Unauthorized("Invalid Password");
-            // return to client worker name and token 
-            return new WorkerDto
+        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
+        {
+            // check if user email is not exist
+            var user = await _context.Users.FirstOrDefaultAsync(user => user.Email.Equals(loginDto.Email));
+            if (user is null) return Unauthorized("Invalid Email");
+            //check password by reverse to what we did before computed hash
+            using var hmac = new HMACSHA512(user.PasswordSalt);
+            var computeHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password));
+            for (int i = 0; i < computeHash.Length; i++)
             {
-                Name = worker.Name,
-                Token = _tokenService.CreateToken(worker)
+                if (computeHash[i] != user.PasswordHash[i]) return Unauthorized("invalid password");
+            }
+            // return to client worker name and token 
+            return new UserDto
+            {
+                Name = user.Name,
+                Token = _tokenService.CreateToken(user)
             };
         }
 
         private async Task<bool> WorkerExist(string Email, string Phone)
         {
-            return await _context.Workers.AnyAsync(w => w.Email == Email.ToLower() || w.Phone == Phone);
+            return await _context.Users.AnyAsync(u => u.Email == Email.ToLower() || u.Phone == Phone);
         }
     }
 }

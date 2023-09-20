@@ -1,4 +1,5 @@
 
+using System.ComponentModel.DataAnnotations;
 using API.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,9 @@ namespace API.Entities
         public DbSet<OrderHistory> OrderHistories { set; get; }
         public DbSet<HouseHoldChores> HouseHoldChores { set; get; }
         public DbSet<Workers_Chores> Workers_Chores { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+
         public WebContext(DbContextOptions options) : base(options)
         {
         }
@@ -21,6 +25,22 @@ namespace API.Entities
             {
                 entity.HasKey(e => new { e.WorkerId, e.ChoreId });
 
+            });
+
+            modelBuilder.Entity<Worker>(entity =>
+            {
+                entity.HasOne(w => w.User)
+                .WithOne(u => u.Worker)
+                .HasForeignKey<Worker>(w => w.Id)
+                .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<Review>(entity =>
+            {
+                entity.HasOne(r => r.OrderHistory)
+                .WithOne(o => o.Review)
+                .HasForeignKey<Review>(r => r.Id)
+                .OnDelete(DeleteBehavior.NoAction);
             });
         }
 

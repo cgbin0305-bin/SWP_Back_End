@@ -21,12 +21,14 @@ namespace API.Services
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
         }
 
-        public string CreateToken(Worker worker)
+        public string CreateToken(User user)
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.NameId, worker.Name),
-                new Claim(JwtRegisteredClaimNames.Email, worker.Email),
+                new Claim(JwtRegisteredClaimNames.NameId, user.Name),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("role",user.Role),
+                new Claim("userId",user.Id.ToString())
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);

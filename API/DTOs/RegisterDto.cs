@@ -20,11 +20,5 @@ namespace API.DTOs
 
         [Required]
         public string Phone { set; get; }
-
-        [Required]
-        public string Address { set; get; }
-
-        [Required]
-        public List<int> RoleChores { set; get; }
     }
 }

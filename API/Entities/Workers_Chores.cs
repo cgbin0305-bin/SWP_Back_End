@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API.Entities
@@ -12,6 +13,7 @@ namespace API.Entities
         public int ChoreId { get; set; }
         [ForeignKey("ChoreId")]
         public HouseHoldChores Chore { get; set; }
-
+        [ConcurrencyCheck]
+        public Guid Version { get; set; }
     }
 }

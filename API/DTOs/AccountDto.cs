@@ -8,9 +8,8 @@ namespace API.DTOs
         public int Id { get; set; }
         public string Name { get; set; }
         public decimal Fee { get; set; }
-        public string Phone { get; set; }
-        public string Email { get; set; }
-
-        public List<HouseHoldChoresDto> chores { set; get; }
+        public string Address { get; set; }
+        public int AverageRate { get; set; }
+        public List<HouseHoldChoresDto> Chores { set; get; }
     }
 }

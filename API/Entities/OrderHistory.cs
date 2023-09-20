@@ -14,7 +14,7 @@ namespace API.Entities
         [Required]
         public DateTime Date { set; get; }
         [Required]
-        public string UserName { set; get; }
+        public string GuestName { set; get; }
         [Required]
         public string GuestPhone { set; get; }
         [Required]
@@ -25,8 +25,9 @@ namespace API.Entities
         [InverseProperty("orderHistories")]
         [Required]
         public Worker Worker { set; get; }
-        [Required]
-        public int Version { get; set; }
+        public Review Review { get; set; }
+        [ConcurrencyCheck]
+        public Guid Version { get; set; }
 
     }
 }
