@@ -1,5 +1,6 @@
 using API.DTOs;
 using API.Entities;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,16 @@ namespace API.Controllers
         {
             // get workers based on there id
             var worker = await _context.Workers.Where(x => x.Status == true).FirstOrDefaultAsync(x => x.Id == id);
+            // check if worker is null
+            if(worker is null){
+                return BadRequest("Worker does not exist");
+            }
+            // get all chores that worker do
+            var chores = (from c in _context.HouseHoldChores
+                        join wc in _context.Workers_Chores on c.Id equals wc.ChoreId
+                        where wc.WorkerId == worker.Id 
+                        select c).ToList();
+            
             AccountDto dto = new AccountDto()
             {
                 Id = worker.Id,
@@ -25,7 +36,27 @@ namespace API.Controllers
                 Fee = worker.Fee,
                 Phone = worker.Phone
             };
-            return dto;
+            List<HouseHoldChoresDto> list = new List<HouseHoldChoresDto>();
+            // add chores to list
+            foreach (var item in chores)
+            {
+               HouseHoldChoresDto choresDto = new HouseHoldChoresDto{
+                Id = item.Id,
+                Name = item.ChoresName,
+                Description = item.Description
+            };
+            list.Add(choresDto);
+            }
+            AccountDto accountDto = new AccountDto{
+                Id = worker.Id,
+                Email = worker.Email,
+                Fee = worker.Fee,
+                Name = worker.Name,
+                Phone = worker.Phone,
+                chores = list
+            };
+            
+            return Ok(accountDto);
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AccountResponseDto>>> GetWorkerByPage([FromQuery(Name = "page")] string pageString)
@@ -134,5 +165,6 @@ namespace API.Controllers
         }
 
 
+    // [HttpGet()]
     }
 }
