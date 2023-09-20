@@ -1,13 +1,8 @@
-
-
-using System.ComponentModel;
 using API.DTOs;
 using API.Entities;
 using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-
 namespace API.Controllers
 {
     public class AccountController : BaseApiController
@@ -24,11 +19,12 @@ namespace API.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<WorkerDto>> Register(RegisterDto registerDto)
         {
+            // Check if there email or phone is exist
             if (await WorkerExist(registerDto.Email, registerDto.Phone))
             {
                 return BadRequest("This worker is taken by email or phone number");
             }
-
+            // set all prop in registerDto into worker then add into Workers table
             var worker = new Worker()
             {
                 Name = registerDto.Name,
@@ -43,7 +39,7 @@ namespace API.Controllers
 
             _context.Workers.Add(worker);
             await _context.SaveChangesAsync();
-
+            // add chores id of worker , and worker id into table Workers_Chores table
             foreach (var choresId in registerDto.RoleChores)
             {
                 _context.Workers_Chores.Add(new Workers_Chores
@@ -54,7 +50,7 @@ namespace API.Controllers
             }
 
             await _context.SaveChangesAsync();
-
+            // return to client worker name and there token
             return new WorkerDto
             {
                 Name = worker.Name,
@@ -64,10 +60,13 @@ namespace API.Controllers
 
         [HttpPost("login")]
         public async Task<ActionResult<WorkerDto>> Login(LoginDto loginDto)
-        {
+        {   
+            // check if worker email is not exist
             var worker = await _context.Workers.FirstOrDefaultAsync(worker => worker.Email.Equals(loginDto.Email));
             if (worker is null) return Unauthorized("Invalid Email");
+            // check if worker password is not match
             if (!worker.Password.Equals(loginDto.Password)) return Unauthorized("Invalid Password");
+            // return to client worker name and token 
             return new WorkerDto
             {
                 Name = worker.Name,
