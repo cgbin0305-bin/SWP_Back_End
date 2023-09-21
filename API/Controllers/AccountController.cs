@@ -35,7 +35,8 @@ namespace API.Controllers
                 Phone = registerDto.Phone,
                 Role = "Guest",
                 PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-                PasswordSalt = hmac.Key
+                PasswordSalt = hmac.Key,
+                Address = registerDto.Address
             };
 
             _context.Users.Add(user);

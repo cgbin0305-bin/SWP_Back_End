@@ -20,5 +20,7 @@ namespace API.DTOs
 
         [Required]
         public string Phone { set; get; }
+        [Required]
+        public string Address { get; set; }
     }
 }

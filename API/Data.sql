@@ -125,3 +125,147 @@ VALUES ('20230916094820_ChangeColumnDataBase_AddHousHoldChoresTable', '7.0.10');
 
 COMMIT;
 
+BEGIN TRANSACTION;
+
+ALTER TABLE "Worker" ADD "Password" TEXT NULL;
+
+CREATE TABLE "ef_temp_Worker" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Worker" PRIMARY KEY AUTOINCREMENT,
+    "Email" TEXT NOT NULL,
+    "Fee" money NOT NULL,
+    "IsAdmin" INTEGER NOT NULL,
+    "Name" TEXT NOT NULL,
+    "Password" TEXT NULL,
+    "Phone" TEXT NULL,
+    "Status" INTEGER NOT NULL,
+    "Version" INTEGER NOT NULL
+);
+
+INSERT INTO "ef_temp_Worker" ("Id", "Email", "Fee", "IsAdmin", "Name", "Password", "Phone", "Status", "Version")
+SELECT "Id", "Email", "Fee", "IsAdmin", "Name", "Password", "Phone", "Status", "Version"
+FROM "Worker";
+
+COMMIT;
+
+PRAGMA foreign_keys = 0;
+
+BEGIN TRANSACTION;
+
+DROP TABLE "Worker";
+
+ALTER TABLE "ef_temp_Worker" RENAME TO "Worker";
+
+COMMIT;
+
+PRAGMA foreign_keys = 1;
+
+BEGIN TRANSACTION;
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20230916113509_changePasswordColumn', '7.0.10');
+
+COMMIT;
+
+BEGIN TRANSACTION;
+
+ALTER TABLE "HouseHoldChores" ADD "Description" TEXT NOT NULL DEFAULT '';
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20230917093053_AddDescriptionCol', '7.0.10');
+
+COMMIT;
+
+BEGIN TRANSACTION;
+
+ALTER TABLE "OrderHistory" RENAME COLUMN "UserName" TO "GuestName";
+
+ALTER TABLE "HouseHoldChores" RENAME COLUMN "ChoresName" TO "Version";
+
+ALTER TABLE "Workers_Chores" ADD "Version" TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';
+
+ALTER TABLE "HouseHoldChores" ADD "Name" TEXT NOT NULL DEFAULT '';
+
+CREATE TABLE "Reviews" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Reviews" PRIMARY KEY,
+    "Content" TEXT NULL,
+    "Date" TEXT NOT NULL,
+    "Rate" INTEGER NOT NULL,
+    "Version" TEXT NOT NULL,
+    CONSTRAINT "FK_Reviews_OrderHistory_Id" FOREIGN KEY ("Id") REFERENCES "OrderHistory" ("Id")
+);
+
+CREATE TABLE "User" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_User" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL,
+    "PasswordHash" BLOB NULL,
+    "PasswordSalt" BLOB NULL,
+    "Phone" TEXT NOT NULL,
+    "Email" TEXT NOT NULL,
+    "Role" TEXT NULL,
+    "Version" TEXT NOT NULL
+);
+
+CREATE TABLE "ef_temp_Worker" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Worker" PRIMARY KEY,
+    "Fee" money NOT NULL,
+    "Status" INTEGER NOT NULL,
+    "Version" TEXT NOT NULL,
+    CONSTRAINT "FK_Worker_User_Id" FOREIGN KEY ("Id") REFERENCES "User" ("Id")
+);
+
+INSERT INTO "ef_temp_Worker" ("Id", "Fee", "Status", "Version")
+SELECT "Id", "Fee", "Status", "Version"
+FROM "Worker";
+
+CREATE TABLE "ef_temp_OrderHistory" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_OrderHistory" PRIMARY KEY AUTOINCREMENT,
+    "Date" TEXT NOT NULL,
+    "GuestAddress" TEXT NOT NULL,
+    "GuestEmail" TEXT NOT NULL,
+    "GuestName" TEXT NOT NULL,
+    "GuestPhone" TEXT NOT NULL,
+    "Version" TEXT NOT NULL,
+    "WorkerId" INTEGER NOT NULL,
+    CONSTRAINT "FK_OrderHistory_Worker_WorkerId" FOREIGN KEY ("WorkerId") REFERENCES "Worker" ("Id") ON DELETE CASCADE
+);
+
+INSERT INTO "ef_temp_OrderHistory" ("Id", "Date", "GuestAddress", "GuestEmail", "GuestName", "GuestPhone", "Version", "WorkerId")
+SELECT "Id", "Date", "GuestAddress", "GuestEmail", "GuestName", "GuestPhone", "Version", "WorkerId"
+FROM "OrderHistory";
+
+COMMIT;
+
+PRAGMA foreign_keys = 0;
+
+BEGIN TRANSACTION;
+
+DROP TABLE "Worker";
+
+ALTER TABLE "ef_temp_Worker" RENAME TO "Worker";
+
+DROP TABLE "OrderHistory";
+
+ALTER TABLE "ef_temp_OrderHistory" RENAME TO "OrderHistory";
+
+COMMIT;
+
+PRAGMA foreign_keys = 1;
+
+BEGIN TRANSACTION;
+
+CREATE INDEX "IX_OrderHistory_WorkerId" ON "OrderHistory" ("WorkerId");
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20230920124832_Update_DB', '7.0.10');
+
+COMMIT;
+
+BEGIN TRANSACTION;
+
+ALTER TABLE "User" ADD "Address" TEXT NOT NULL DEFAULT '';
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20230920133722_Add_Address_Column_User_Table', '7.0.10');
+
+COMMIT;
+
