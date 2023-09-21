@@ -33,7 +33,7 @@ namespace API.Controllers
                 Name = registerDto.Name,
                 Email = registerDto.Email,
                 Phone = registerDto.Phone,
-                Role = "Guest",
+                Role = "User".ToLower(),
                 PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
                 PasswordSalt = hmac.Key,
                 Address = registerDto.Address
