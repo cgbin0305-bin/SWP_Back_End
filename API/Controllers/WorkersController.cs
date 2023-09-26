@@ -53,9 +53,9 @@ namespace API.Controllers
         Id = worker.Id,
         Fee = worker.Fee,
         Name = user.Name,
-        Address = "",
+        Address = user.Address,
         AverageRate = 0,
-        Chores = null
+        Chores = list
       };
       return Ok(accountDto);
     }
