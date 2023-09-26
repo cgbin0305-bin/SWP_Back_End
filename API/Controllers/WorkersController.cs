@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace API.Controllers
 {
@@ -14,8 +15,9 @@ namespace API.Controllers
     {
       _context = context;
     }
+
     [HttpGet("{id}")]
-    public async Task<ActionResult<AccountDto>> GetWorkerById(int id)
+    public async Task<ActionResult<WorkerDetail>> GetWorkerById(int id)
     {
       // get workers based on there id
       var worker = await _context.Workers.Where(x => x.Status == true).FirstOrDefaultAsync(x => x.Id == id);
@@ -26,7 +28,7 @@ namespace API.Controllers
         return BadRequest("Worker does not exist");
       }
       // explicit Load User
-      var entry = _context.Entry<Worker>(worker);
+      var entry = _context.Entry(worker);
       await entry.Reference(e => e.User).LoadAsync();
       var user = worker.User;
 
@@ -48,20 +50,46 @@ namespace API.Controllers
         };
         list.Add(choresDto);
       }
-      AccountDto accountDto = new AccountDto
+
+      // get OrderHistory
+      var reviews = _context.OrderHistories.Where(o => o.WorkerId == id)
+          .Include(o => o.Review)
+          .ToList();
+
+      // get a review of this worker
+      List<ReviewDto> listReviews = new List<ReviewDto>();
+      double sum = 0;
+      int count = reviews.Count();
+      foreach (var item in reviews)
+      {
+        var reviewDto = new ReviewDto
+        {
+          GuestName = item.GuestName,
+          Date = item.Date,
+          Content = item.Review.Content,
+          Rate = item.Review.Rate
+        };
+        sum += reviewDto.Rate;
+        listReviews.Add(reviewDto);
+      }
+
+
+      WorkerDetail workerDetail = new WorkerDetail
       {
         Id = worker.Id,
         Fee = worker.Fee,
         Name = user.Name,
         Address = user.Address,
-        AverageRate = 0,
+        AverageRate = (int)Math.Round(sum/count),
+        CountOrder = count,
+        Reviews = listReviews,
         Chores = list
       };
-      return Ok(accountDto);
+      return Ok(workerDetail);
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AccountResponseDto>>> GetWorkerByPage([FromQuery(Name = "page")] string pageString)
+    public async Task<ActionResult<AccountResponseDto>> GetWorkerByPage([FromQuery(Name = "page")] string pageString)
     {
       int page = 0;
       int currentPage = 0;
@@ -166,6 +194,7 @@ namespace API.Controllers
         TotalElements = totalElements.Count(),
         PageSize = (int)pageResults
       };
+
       return Ok(Response);
     }
   }

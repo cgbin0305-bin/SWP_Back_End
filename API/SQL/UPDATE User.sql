@@ -66,3 +66,28 @@ VALUES
     (14, 3, '00000000-0000-0000-0000-000000000000'),
     (15, 4, '00000000-0000-0000-0000-000000000000')
 ;
+
+INSERT INTO OrderHistory (Date, GuestAddress, GuestEmail, GuestName, GuestPhone, WorkerId)
+VALUES 
+    ('2023-09-10', 'Quan 10, TP. Ho Chi Minh', 'olivia.davis@example.com', 'Olivia Davis', '555-789-4321', 1),
+    ('2023-09-09', 'Quan 11, TP. Ho Chi Minh', 'william.smith@example.com', 'William Smith', '555-567-8901', 1),
+    ('2023-09-08', 'Quan 12, TP. Ho Chi Minh', 'sophia.taylor@example.com', 'Sophia Taylor', '555-432-1098', 1),
+    ('2023-09-07', 'Quan Tan Binh, TP. Ho Chi Minh', 'daniel.brown@example.com', 'Daniel Brown', '555-123-9876', 1),
+    ('2023-09-06', 'Quan Tan Phong, TP. Ho Chi Minh', 'emma.wilson@example.com', 'Emma Wilson', '555-987-2345', 1),
+    ('2023-09-05', 'Binh Tan Tp. Ho Chi Minh', 'HoangHuy@example.com', 'William Smith', '0896423546', 1);
+
+INSERT INTO Reviews (Id, Content, Date, Rate, Version)
+VALUES 
+(11,'Lam rat co tam, trach nhiem', '2023-09-10', 5,'00000000-0000-0000-0000-000000000000'),
+(12,'Rat thich cach lam viec chuyen nghiep', '2023-09-09', 4,'00000000-0000-0000-0000-000000000000'),
+(13,'Tot, dung gio, sach se', '2023-09-08', 5,'00000000-0000-0000-0000-000000000000'),
+(14,'Sach se, ngan nap', '2023-09-07', 4,'00000000-0000-0000-0000-000000000000'),
+(15,'Rat Ok <3', '2023-09-05', 5,'00000000-0000-0000-0000-000000000000'),
+(16,'Nha sang bong khong 1 vet do', '2023-09-10', 4,'00000000-0000-0000-0000-000000000000'),
+(17,'Rat tuyet voi luon', '2023-09-07', 5,'00000000-0000-0000-0000-000000000000'),
+(18,'Lan sau se book tiep', '2023-09-06', 4,'00000000-0000-0000-0000-000000000000'),
+(19,'Don nha rat sach, nhung ton nhieu thoi gian qua, con hoi vung ve trong khau lau nha', '2023-09-05', 3,'00000000-0000-0000-0000-000000000000'),
+(20,'Cung tam on', '2023-09-09', 3,'00000000-0000-0000-0000-000000000000'),
+(21,'Ngon lanh lien', '2023-09-08', 4,'00000000-0000-0000-0000-000000000000'),
+(22,'Lan sau se book tiep', '2023-09-07', 5,'00000000-0000-0000-0000-000000000000'),
+(23,'Lan sau se book tiep', '2023-09-06', 5,'00000000-0000-0000-0000-000000000000');

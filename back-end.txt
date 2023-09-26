@@ -7,3 +7,5 @@ TotalElement
 
 front-end
 currentPage
+
+review, count orderhistory, from register

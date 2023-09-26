@@ -35,6 +35,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
