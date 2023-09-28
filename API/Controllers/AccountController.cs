@@ -60,7 +60,7 @@ namespace API.Controllers
             var computeHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password));
             for (int i = 0; i < computeHash.Length; i++)
             {
-                if (computeHash[i] != user.PasswordHash[i]) return Unauthorized("invalid password");
+                if (computeHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid password");
             }
             // return to client worker name and token 
             return new UserDto

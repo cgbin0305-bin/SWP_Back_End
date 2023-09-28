@@ -9,3 +9,5 @@ front-end
 currentPage
 
 review, count orderhistory, from register
+
+date of review, fix structure of code

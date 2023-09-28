@@ -58,6 +58,7 @@ namespace API.Controllers
 
       // get a review of this worker
       List<ReviewDto> listReviews = new List<ReviewDto>();
+      // variable to caculate average rate  
       double sum = 0;
       int count = reviews.Count();
       foreach (var item in reviews)
@@ -65,7 +66,7 @@ namespace API.Controllers
         var reviewDto = new ReviewDto
         {
           GuestName = item.GuestName,
-          Date = item.Date,
+          Date = string.Format("{0:yyyy-MM-dd}", item.Date),
           Content = item.Review.Content,
           Rate = item.Review.Rate
         };
@@ -80,7 +81,7 @@ namespace API.Controllers
         Fee = worker.Fee,
         Name = user.Name,
         Address = user.Address,
-        AverageRate = (int)Math.Round(sum/count),
+        AverageRate = count > 0 ? (int)Math.Round(sum / count) : 0,
         CountOrder = count,
         Reviews = listReviews,
         Chores = list
