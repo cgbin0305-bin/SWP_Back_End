@@ -1,14 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+namespace API.DTOs;
 
-namespace API.DTOs
+public class UserDto
 {
-    public class UserDto
-    {
-        public string Name { set; get; }
+        public int Id { get; set; }
+        public string Name { get; set; }
 
-        public string Token { set; get; }
-    }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public string Address { get; set; }
+
+        public string Role { get; set; }
+
 }
+

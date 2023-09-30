@@ -1,3 +1,4 @@
+using API.Data;
 using API.Entities;
 using API.Interfaces;
 using API.Services;
@@ -19,6 +20,9 @@ public static class ApplicationServiceExtensions
         services.AddCors();
         // Add Service to ServiceCollection
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IWorkerRepository, WorkerRepository>();
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+        
         return services;
     }
 }

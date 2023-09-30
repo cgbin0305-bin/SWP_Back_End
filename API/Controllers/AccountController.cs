@@ -19,7 +19,7 @@ namespace API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<TokenDto>> Register(RegisterDto registerDto)
         {
             // Check if there email or phone is exist
             if (await WorkerExist(registerDto.Email, registerDto.Phone))
@@ -42,7 +42,7 @@ namespace API.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             // return to client worker name and there token
-            return new UserDto
+            return new TokenDto
             {
                 Name = user.Name,
                 Token = _tokenService.CreateToken(user)
@@ -50,7 +50,7 @@ namespace API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
+        public async Task<ActionResult<TokenDto>> Login(LoginDto loginDto)
         {
             // check if user email is not exist
             var user = await _context.Users.FirstOrDefaultAsync(user => user.Email.Equals(loginDto.Email));
@@ -63,7 +63,7 @@ namespace API.Controllers
                 if (computeHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid password");
             }
             // return to client worker name and token 
-            return new UserDto
+            return new TokenDto
             {
                 Name = user.Name,
                 Token = _tokenService.CreateToken(user)

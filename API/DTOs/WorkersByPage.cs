@@ -1,9 +1,9 @@
 
 namespace API.DTOs
 {
-    public class AccountResponseDto
+    public class WorkersByPage
     {
-        public List<AccountDto> Accounts { set; get; }
+        public List<WorkerPage> Workers { set; get; }
         public int CurrentPage { get; set; }
         public int PageSize { get; set; }
         public int TotalElements { get; set; }
