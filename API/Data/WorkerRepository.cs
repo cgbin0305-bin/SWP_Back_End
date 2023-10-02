@@ -42,6 +42,18 @@ public class WorkerRepository : IWorkerRepository
 
     public async Task<IEnumerable<WorkerDto>> SearchWorkersAsync(string keyword)
     {
-        return null;
+        // keyword is name, address or chores
+        var workers = await _context.Workers
+            .Where(x => x.Status)
+            .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
+            .AsQueryable()
+            .ToListAsync();
+
+        var result = workers.Where(x => x.Name.ToLower().Contains(keyword) 
+            || x.Address.ToLower().Contains(keyword)
+            || x.Chores.Any(chore => chore.Name.ToLower().Contains(keyword)
+            || chore.Description.ToLower().Contains(keyword)));
+
+        return result;
     }
 }

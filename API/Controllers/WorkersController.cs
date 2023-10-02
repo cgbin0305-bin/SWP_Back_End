@@ -48,7 +48,8 @@ namespace API.Controllers
       var listWorkerPage = new List<WorkerPage>();
       foreach (var worker in workers.Skip(currentPage * (int)pageSize).Take((int)pageSize).ToList())
       {
-        var workerPage = new WorkerPage {
+        var workerPage = new WorkerPage
+        {
           Id = worker.Id,
           Name = worker.Name,
           Fee = worker.Fee,
@@ -59,7 +60,8 @@ namespace API.Controllers
         listWorkerPage.Add(workerPage);
       }
 
-      var resultPage = new WorkersByPage() {
+      var resultPage = new WorkersByPage()
+      {
         Workers = listWorkerPage,
         CurrentPage = currentPage,
         TotalElements = workers.Count(),
@@ -70,11 +72,50 @@ namespace API.Controllers
     }
 
     [HttpGet("search")]
-    public async Task<ActionResult<string>> SearchWorkers([FromQuery] string keyword) {
-      if(string.IsNullOrWhiteSpace(keyword)) {
+    public async Task<ActionResult<WorkersByPage>> SearchWorkers([FromQuery(Name ="keyword")] string keyword,[FromQuery(Name ="page")] string pageString)
+    {
+      if (string.IsNullOrWhiteSpace(keyword))
+      {
         return NoContent();
       }
-      return keyword;
+
+      int currentPage;
+      float pageSize = 12f;
+      var workers = await _workerRepository.SearchWorkersAsync(keyword);
+
+      try
+      {
+        currentPage = PageHelper.CurrentPage(pageString, workers.Count(), pageSize);
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
+
+      var listWorkerPage = new List<WorkerPage>();
+      foreach (var worker in workers.Skip(currentPage * (int)pageSize).Take((int)pageSize).ToList())
+      {
+        var workerPage = new WorkerPage
+        {
+          Id = worker.Id,
+          Name = worker.Name,
+          Fee = worker.Fee,
+          Address = worker.Address,
+          AverageRate = worker.AverageRate,
+          Chores = worker.Chores
+        };
+        listWorkerPage.Add(workerPage);
+      }
+
+      var resultPage = new WorkersByPage()
+      {
+        Workers = listWorkerPage,
+        CurrentPage = currentPage,
+        TotalElements = workers.Count(),
+        PageSize = (int)pageSize
+      };
+
+      return Ok(resultPage);
     }
   }
 }
