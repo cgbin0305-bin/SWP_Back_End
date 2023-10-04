@@ -15,10 +15,12 @@ public class AutoMapperProfiles : Profile
             .ForMember(dest => dest.Reviews, opt => opt.MapFrom(src => src.OrderHistories.Select(x => x.Review)))
             .ForMember(dest => dest.CountOrder, opt => opt.MapFrom(src => src.OrderHistories.Count()))
             .ForMember(dest => dest.AverageRate, opt => opt.MapFrom(src => src.OrderHistories != null && src.OrderHistories.Any() ?
-            (int)src.OrderHistories.Average(x => x.Review != null ? x.Review.Rate : 0) :0))
+            (int)src.OrderHistories.Average(x => x.Review != null ? x.Review.Rate : 0) : 0))
             .ForMember(dest => dest.Chores, opt => opt.MapFrom(src => src.Workers_Chores.Select(x => x.Chore)));
         CreateMap<OrderHistory, OrderHistoryDto>()
-            .ForMember(dest => dest.Review, opt => opt.MapFrom(src => src.Review));
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => string.Format("{0:yyyy-MM-dd}", src.Date)))
+            .ForMember(dest => dest.WorkerId, opt => opt.MapFrom(src => src.Worker.Id))
+            .ForMember(dest => dest.WorkerName, opt => opt.MapFrom(src => src.Worker.User.Name));
         CreateMap<User, UserDto>();
         CreateMap<Review, ReviewDto>()
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => string.Format("{0:yyyy-MM-dd}", src.Date)))

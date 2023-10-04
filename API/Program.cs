@@ -1,5 +1,7 @@
 using API.Extentions;
+using API.Interfaces;
 using API.Middleware;
+using API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,8 @@ builder.Services.AddControllers();
 builder.Services.AddApplicationServices(builder.Configuration);
 // in extension method: AddIdentityServices
 builder.Services.AddIdentityServices(builder.Configuration);
+
+
 
 var app = builder.Build();
 

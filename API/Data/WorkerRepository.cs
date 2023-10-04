@@ -19,7 +19,7 @@ public class WorkerRepository : IWorkerRepository
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<WorkerDto>> GetAllWorkers()
+    public async Task<IEnumerable<WorkerDto>> GetAllWorkersAsync()
     {
         return await _context.Workers
             .Where(x => x.Status)
@@ -49,7 +49,7 @@ public class WorkerRepository : IWorkerRepository
             .AsQueryable()
             .ToListAsync();
 
-        var result = workers.Where(x => x.Name.ToLower().Contains(keyword) 
+        var result = workers.Where(x => x.Name.ToLower().Contains(keyword)
             || x.Address.ToLower().Contains(keyword)
             || x.Chores.Any(chore => chore.Name.ToLower().Contains(keyword)
             || chore.Description.ToLower().Contains(keyword)));

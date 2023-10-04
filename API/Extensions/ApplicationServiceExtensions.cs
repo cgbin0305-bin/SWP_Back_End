@@ -22,7 +22,11 @@ public static class ApplicationServiceExtensions
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IWorkerRepository, WorkerRepository>();
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-        
+        services.AddScoped<IOrderHistoryRepository, OrderHistoryRepository>();
+        // add Mail Settings
+        services.Configure<MailSettings>(config.GetSection("MailSettings"));
+        services.AddTransient<ISendMailService, SendMailService>();
+
         return services;
     }
 }

@@ -34,7 +34,7 @@ namespace API.Controllers
     {
       int currentPage;
       float pageSize = 12f;
-      var workers = await _workerRepository.GetAllWorkers();
+      var workers = await _workerRepository.GetAllWorkersAsync();
 
       try
       {
@@ -72,7 +72,7 @@ namespace API.Controllers
     }
 
     [HttpGet("search")]
-    public async Task<ActionResult<WorkersByPage>> SearchWorkers([FromQuery(Name ="keyword")] string keyword,[FromQuery(Name ="page")] string pageString)
+    public async Task<ActionResult<WorkersByPage>> SearchWorkers([FromQuery(Name = "keyword")] string keyword, [FromQuery(Name = "page")] string pageString)
     {
       if (string.IsNullOrWhiteSpace(keyword))
       {

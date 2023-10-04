@@ -5,6 +5,7 @@ using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
+using API.Services;
 namespace API.Controllers
 {
     public class AccountController : BaseApiController
@@ -12,15 +13,19 @@ namespace API.Controllers
         private readonly WebContext _context;
 
         private readonly ITokenService _tokenService;
-        public AccountController(WebContext context, ITokenService tokenService)
+        private readonly ISendMailService _sendMailService;
+        public AccountController(WebContext context, ITokenService tokenService, ISendMailService sendMailService)
         {
             _context = context;
             _tokenService = tokenService;
+            _sendMailService = sendMailService;
         }
 
         [HttpPost("register")]
         public async Task<ActionResult<TokenDto>> Register(RegisterDto registerDto)
         {
+
+            var mailContent = new MailContent();
             // Check if there email or phone is exist
             if (await WorkerExist(registerDto.Email, registerDto.Phone))
             {
@@ -39,6 +44,13 @@ namespace API.Controllers
                 Address = registerDto.Address
             };
 
+
+            // set up to send mail 
+            mailContent.Subject = "Dang ky tai khoan thanh cong";
+            mailContent.Body = $"Cam on {registerDto.Name} da dang ky tai khoan";
+            mailContent.To = registerDto.Email;
+            // send mail
+            await _sendMailService.SendMailAsync(mailContent);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             // return to client worker name and there token
