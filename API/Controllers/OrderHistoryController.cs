@@ -3,7 +3,7 @@ using API.DTOs;
 using API.Helper;
 using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace API.Controllers
@@ -18,6 +18,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<OrderHistoryByPage>> GetOrderHistoryByPage([FromQuery(Name = "page")] string pageString)
         {
             int currentPage;

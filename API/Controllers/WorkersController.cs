@@ -35,6 +35,10 @@ namespace API.Controllers
       int currentPage;
       float pageSize = 12f;
       var workers = await _workerRepository.GetAllWorkersAsync();
+      if (workers is null)
+      {
+        return BadRequest("Worker is not exist");
+      }
 
       try
       {
