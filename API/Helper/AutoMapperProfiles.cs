@@ -20,6 +20,7 @@ public class AutoMapperProfiles : Profile
         CreateMap<OrderHistory, OrderHistoryDto>()
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => string.Format("{0:yyyy-MM-dd}", src.Date)))
             .ForMember(dest => dest.WorkerId, opt => opt.MapFrom(src => src.Worker.Id))
+            .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => src.Review.Rate))
             .ForMember(dest => dest.WorkerName, opt => opt.MapFrom(src => src.Worker.User.Name));
         CreateMap<User, UserDto>();
         CreateMap<Review, ReviewDto>()
