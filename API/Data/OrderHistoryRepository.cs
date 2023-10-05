@@ -11,19 +11,30 @@ namespace API.Data
 {
     public class OrderHistoryRepository : IOrderHistoryRepository
     {
-        private readonly WebContext _webContext;
+        private readonly WebContext _context;
         private readonly IMapper _mapper;
 
-        public OrderHistoryRepository(WebContext webContext, IMapper mapper)
+        public OrderHistoryRepository(WebContext context, IMapper mapper)
         {
-            _webContext = webContext;
+            _context = context;
             _mapper = mapper;
         }
         public async Task<IEnumerable<OrderHistoryDto>> GetAllOrderHistoriesAsync()
         {
-            return await _webContext.OrderHistories
+            return await _context.OrderHistories
                     .ProjectTo<OrderHistoryDto>(_mapper.ConfigurationProvider)
                     .ToListAsync();
+        }
+
+        public async Task<IEnumerable<OrderHistoryDto>> SearchOrderHistoriesAsync(string keyword)
+        {
+            return await _context.OrderHistories
+            .Where(x => x.GuestName.ToLower().Contains(keyword)
+            || x.GuestEmail.ToLower().Contains(keyword)
+            || x.GuestAddress.ToLower().Contains(keyword)
+            || x.GuestPhone.Contains(keyword))
+            .ProjectTo<OrderHistoryDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
         }
     }
 }

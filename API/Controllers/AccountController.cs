@@ -13,6 +13,7 @@ namespace API.Controllers
         private readonly WebContext _context;
 
         private readonly ITokenService _tokenService;
+        
         private readonly ISendMailService _sendMailService;
         public AccountController(WebContext context, ITokenService tokenService, ISendMailService sendMailService)
         {
@@ -86,5 +87,6 @@ namespace API.Controllers
         {
             return await _context.Users.AnyAsync(u => u.Email == Email.ToLower() || u.Phone == Phone);
         }
+
     }
 }

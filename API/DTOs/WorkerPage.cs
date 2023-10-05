@@ -10,6 +10,8 @@ namespace API.DTOs
         public string Name { get; set; }
         
         public decimal Fee { get; set; }
+
+        public bool Status {get; set;}
         
         public string Address { get; set; }
         

@@ -1,6 +1,8 @@
+using System.Net;
 using API.DTOs;
 using API.Helper;
 using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -57,6 +59,7 @@ namespace API.Controllers
           Id = worker.Id,
           Name = worker.Name,
           Fee = worker.Fee,
+          Status = worker.Status,
           Address = worker.Address,
           AverageRate = worker.AverageRate,
           Chores = worker.Chores
@@ -85,7 +88,7 @@ namespace API.Controllers
 
       int currentPage;
       float pageSize = 12f;
-      var workers = await _workerRepository.SearchWorkersAsync(keyword);
+      var workers = await _workerRepository.SearchWorkersAsync(keyword.ToLower());
 
       try
       {
@@ -104,6 +107,7 @@ namespace API.Controllers
           Id = worker.Id,
           Name = worker.Name,
           Fee = worker.Fee,
+          Status = worker.Status,
           Address = worker.Address,
           AverageRate = worker.AverageRate,
           Chores = worker.Chores
@@ -121,5 +125,58 @@ namespace API.Controllers
 
       return Ok(resultPage);
     }
+  
+    [HttpGet("admin")]
+    [Authorize(Roles = "admin")]
+    public async Task<ActionResult<WorkersByPage>> GetWorkerForAdminByPage([FromQuery(Name = "page")] string pageString)
+    {
+      int currentPage;
+      float pageSize = 12f;
+      var workers = await _workerRepository.GetAllWorkersForAdminAsync();
+      if (workers is null)
+      {
+        return BadRequest("Worker is not exist");
+      }
+
+      try
+      {
+        currentPage = PageHelper.CurrentPage(pageString, workers.Count(), pageSize);
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
+
+      var listWorkerPage = new List<WorkerPage>();
+      foreach (var worker in workers.Skip(currentPage * (int)pageSize).Take((int)pageSize).ToList())
+      {
+        var workerPage = new WorkerPage
+        {
+          Id = worker.Id,
+          Name = worker.Name,
+          Fee = worker.Fee,
+          Status = worker.Status,
+          Address = worker.Address,
+          AverageRate = worker.AverageRate,
+          Chores = worker.Chores
+        };
+        listWorkerPage.Add(workerPage);
+      }
+
+      var resultPage = new WorkersByPage()
+      {
+        Workers = listWorkerPage,
+        CurrentPage = currentPage,
+        TotalElements = workers.Count(),
+        PageSize = (int)pageSize
+      };
+
+      return Ok(resultPage);
+    }
+  
+  
+  
+  
+  
   }
 }

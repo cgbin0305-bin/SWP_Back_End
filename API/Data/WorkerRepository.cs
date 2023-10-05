@@ -27,6 +27,13 @@ public class WorkerRepository : IWorkerRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<WorkerDto>> GetAllWorkersForAdminAsync()
+    {
+        return await _context.Workers
+            .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
+    }
+
     public async Task<WorkerDto> GetWorkerByIdAsync(int id)
     {
         return await _context.Workers

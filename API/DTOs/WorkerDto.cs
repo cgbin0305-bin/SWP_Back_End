@@ -8,6 +8,8 @@ public class WorkerDto
 
     public string Name { get; set; }
 
+    public bool Status {get; set;}
+
     public string Address { get; set; }
 
     public int CountOrder { set; get; }

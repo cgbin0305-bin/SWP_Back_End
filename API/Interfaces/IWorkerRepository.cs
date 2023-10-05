@@ -12,4 +12,6 @@ public interface IWorkerRepository
 
     Task<IEnumerable<WorkerDto>> SearchWorkersAsync(string keyword);
 
+    Task<IEnumerable<WorkerDto>>GetAllWorkersForAdminAsync();
+
 }

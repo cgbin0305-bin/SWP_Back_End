@@ -37,32 +37,49 @@ namespace API.Controllers
                 return BadRequest(ex.Message);
             }
 
-            List<OrderHistoryDto> list = new List<OrderHistoryDto>();
-
-            foreach (var item in result.Skip(currentPage * (int)pageSize).Take((int)pageSize).ToList())
+            OrderHistoryByPage orderHistoryByPage = new OrderHistoryByPage
             {
-                OrderHistoryDto dto = new OrderHistoryDto()
-                {
-                    Rate = item.Rate,
-                    Date = item.Date,
-                    GuestAddress = item.GuestAddress,
-                    GuestEmail = item.GuestEmail,
-                    GuestName = item.GuestName,
-                    GuestPhone = item.GuestPhone,
-                    Id = item.Id,
-                    WorkerName = item.WorkerName,
-                    WorkerId = item.WorkerId
-                };
-                list.Add(dto);
-            }
-            OrderHistoryByPage orderHistoryByPage = new OrderHistoryByPage()
-            {
-                OrderHistories = list,
+                OrderHistories = result.Skip(currentPage * (int)pageSize).Take((int)pageSize).ToList(),
                 CurrentPage = currentPage,
                 PageSize = (int)pageSize,
                 TotalElements = result.Count
             };
             return Ok(orderHistoryByPage);
         }
+
+
+        [HttpGet("search")]
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult<OrderHistoryByPage>> SearchOrderHistories([FromQuery(Name = "keyword")] string keyword, [FromQuery(Name = "page")] string pageString)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return NoContent();
+            }
+
+            int currentPage;
+            float pageSize = 25f;
+            var orderHistories =(List<OrderHistoryDto>) await _orderHistoryRepository.SearchOrderHistoriesAsync(keyword.ToLower());
+
+            try
+            {
+                currentPage = PageHelper.CurrentPage(pageString, orderHistories.Count(), pageSize);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            var resultPage = new OrderHistoryByPage
+            {
+                OrderHistories = orderHistories.Skip(currentPage * (int)pageSize).Take((int)pageSize).ToList(),
+                CurrentPage = currentPage,
+                TotalElements = orderHistories.Count(),
+                PageSize = (int)pageSize
+            };
+
+            return Ok(resultPage);
+        }
     }
+
 }
