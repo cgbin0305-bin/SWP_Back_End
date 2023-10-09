@@ -125,7 +125,7 @@ namespace API.Controllers
 
       return Ok(resultPage);
     }
-  
+
     [HttpGet("admin")]
     [Authorize(Roles = "admin")]
     public async Task<ActionResult<WorkersByPage>> GetWorkerForAdminByPage([FromQuery(Name = "page")] string pageString)
@@ -173,10 +173,5 @@ namespace API.Controllers
 
       return Ok(resultPage);
     }
-  
-  
-  
-  
-  
   }
 }

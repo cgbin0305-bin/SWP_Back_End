@@ -8,6 +8,6 @@ namespace API.Interfaces
         Task<IEnumerable<OrderHistoryDto>> GetAllOrderHistoriesAsync();
 
         Task<IEnumerable<OrderHistoryDto>> SearchOrderHistoriesAsync(string keyword);
-
+        Task<bool> AddOrderHistoryAsync(HireWorkerInfoDto dto);
     }
 }

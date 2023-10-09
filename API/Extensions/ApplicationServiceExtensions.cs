@@ -20,6 +20,7 @@ public static class ApplicationServiceExtensions
         services.AddCors();
         // Add Service to ServiceCollection
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IWorkerRepository, WorkerRepository>();
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         services.AddScoped<IOrderHistoryRepository, OrderHistoryRepository>();

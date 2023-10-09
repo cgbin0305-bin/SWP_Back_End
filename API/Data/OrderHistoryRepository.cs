@@ -19,6 +19,22 @@ namespace API.Data
             _context = context;
             _mapper = mapper;
         }
+
+        public async Task<bool> AddOrderHistoryAsync(HireWorkerInfoDto dto)
+        {
+            OrderHistory orderHistory = new OrderHistory()
+            {
+                Date = DateTime.UtcNow,
+                GuestAddress = dto.GuestAddress,
+                GuestEmail = dto.GuestEmail,
+                GuestName = dto.GuestName,
+                GuestPhone = dto.GuestPhone,
+                WorkerId = dto.WorkerId,
+            };
+            _context.OrderHistories.Add(orderHistory);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
         public async Task<IEnumerable<OrderHistoryDto>> GetAllOrderHistoriesAsync()
         {
             return await _context.OrderHistories
@@ -28,13 +44,16 @@ namespace API.Data
 
         public async Task<IEnumerable<OrderHistoryDto>> SearchOrderHistoriesAsync(string keyword)
         {
-            return await _context.OrderHistories
-            .Where(x => x.GuestName.ToLower().Contains(keyword)
+            var OrderHistories = await _context.OrderHistories
+                .ProjectTo<OrderHistoryDto>(_mapper.ConfigurationProvider)
+                .AsQueryable()
+                .ToListAsync();
+
+            return OrderHistories.Where(x => x.GuestName.ToLower().Contains(keyword)
             || x.GuestEmail.ToLower().Contains(keyword)
             || x.GuestAddress.ToLower().Contains(keyword)
-            || x.GuestPhone.Contains(keyword))
-            .ProjectTo<OrderHistoryDto>(_mapper.ConfigurationProvider)
-            .ToListAsync();
+            || x.GuestPhone.Contains(keyword)
+            || x.WorkerName.ToLower().Contains(keyword));
         }
     }
 }

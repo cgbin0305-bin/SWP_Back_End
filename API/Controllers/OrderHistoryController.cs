@@ -4,6 +4,7 @@ using API.Helper;
 using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 
 namespace API.Controllers
@@ -11,10 +12,12 @@ namespace API.Controllers
     public class OrderHistoryController : BaseApiController
     {
         private readonly IOrderHistoryRepository _orderHistoryRepository;
+        private readonly IUserRepository _userRepository;
 
-        public OrderHistoryController(IOrderHistoryRepository orderHistoryRepository)
+        public OrderHistoryController(IOrderHistoryRepository orderHistoryRepository, IUserRepository userRepository)
         {
             _orderHistoryRepository = orderHistoryRepository;
+            _userRepository = userRepository;
         }
 
         [HttpGet]
@@ -59,7 +62,7 @@ namespace API.Controllers
 
             int currentPage;
             float pageSize = 25f;
-            var orderHistories =(List<OrderHistoryDto>) await _orderHistoryRepository.SearchOrderHistoriesAsync(keyword.ToLower());
+            var orderHistories = (List<OrderHistoryDto>)await _orderHistoryRepository.SearchOrderHistoriesAsync(keyword.ToLower());
 
             try
             {
@@ -79,6 +82,42 @@ namespace API.Controllers
             };
 
             return Ok(resultPage);
+        }
+
+        [HttpPost("hire")]
+        public async Task<ActionResult<string>> HireWorker(HireWorkerInfoDto dto)
+        {
+            int userId;
+            UserDto user;
+            try
+            {
+                //get userId from token
+                userId = Int32.Parse(User.FindFirst("userId")?.Value);
+                // get user by id
+                user = await _userRepository.GetUserByIdAsync(userId);
+                dto.GuestName = user.Name;
+                dto.GuestPhone = user.Phone;
+                dto.GuestEmail = user.Email;
+                dto.GuestAddress = user.Address;
+            }
+            catch (System.Exception)
+            {
+                // add order history 
+                if (await _orderHistoryRepository.AddOrderHistoryAsync(dto))
+                {
+                    return Ok("Hire Worker without log in Successfully.");
+
+                }
+                return BadRequest();
+
+            }
+
+            // add order history 
+            if (await _orderHistoryRepository.AddOrderHistoryAsync(dto))
+            {
+                return Ok("Hire Worker with login Successfully.");
+            }
+            return BadRequest();
         }
     }
 

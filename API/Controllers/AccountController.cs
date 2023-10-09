@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using API.Services;
+using Microsoft.AspNetCore.Authorization;
 namespace API.Controllers
 {
     public class AccountController : BaseApiController
@@ -13,7 +14,7 @@ namespace API.Controllers
         private readonly WebContext _context;
 
         private readonly ITokenService _tokenService;
-        
+
         private readonly ISendMailService _sendMailService;
         public AccountController(WebContext context, ITokenService tokenService, ISendMailService sendMailService)
         {
@@ -88,5 +89,11 @@ namespace API.Controllers
             return await _context.Users.AnyAsync(u => u.Email == Email.ToLower() || u.Phone == Phone);
         }
 
+        [HttpGet("admin")]
+        [Authorize("admin")]
+        public async Task<ActionResult<IEnumerable<User>>> GetUserForAdminAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
     }
 }
