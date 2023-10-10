@@ -1,6 +1,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 
 namespace API.Entities
 {
@@ -12,7 +13,7 @@ namespace API.Entities
         [Required]
         public string GuestEmail { get; set; }
         [Required]
-        public DateTime Date { set; get; }
+        public DateTime Date { set; get; } = DateTime.UtcNow;
         [Required]
         public string GuestName { set; get; }
         [Required]

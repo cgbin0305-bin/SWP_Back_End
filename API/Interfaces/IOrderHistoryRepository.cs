@@ -1,5 +1,6 @@
 
 using API.DTOs;
+using API.Entities;
 
 namespace API.Interfaces
 {
@@ -9,5 +10,6 @@ namespace API.Interfaces
 
         Task<IEnumerable<OrderHistoryDto>> SearchOrderHistoriesAsync(string keyword);
         Task<bool> AddOrderHistoryAsync(HireWorkerInfoDto dto);
+
     }
 }

@@ -1,4 +1,5 @@
 using API.DTOs;
+using API.Entities;
 
 namespace API.Interfaces;
 
@@ -13,5 +14,7 @@ public interface IWorkerRepository
     Task<IEnumerable<WorkerDto>> SearchWorkersAsync(string keyword);
 
     Task<IEnumerable<WorkerDto>>GetAllWorkersForAdminAsync();
+
+    Task<Worker> GetWorkerEntityByIdAsync(int id);
 
 }

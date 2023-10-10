@@ -5,6 +5,8 @@ using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using AutoMapper;
+using API.Entities;
 
 
 namespace API.Controllers
@@ -13,11 +15,15 @@ namespace API.Controllers
     {
         private readonly IOrderHistoryRepository _orderHistoryRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IWorkerRepository _workerRepository;
+        private readonly IMapper _mapper;
 
-        public OrderHistoryController(IOrderHistoryRepository orderHistoryRepository, IUserRepository userRepository)
+        public OrderHistoryController(IOrderHistoryRepository orderHistoryRepository, IUserRepository userRepository, IWorkerRepository workerRepository, IMapper mapper)
         {
             _orderHistoryRepository = orderHistoryRepository;
             _userRepository = userRepository;
+            _workerRepository = workerRepository;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -85,39 +91,36 @@ namespace API.Controllers
         }
 
         [HttpPost("hire")]
-        public async Task<ActionResult<string>> HireWorker(HireWorkerInfoDto dto)
+        public async Task<ActionResult<OrderHistoryDto>> HireWorker(HireWorkerInfoDto dto)
         {
-            int userId;
-            UserDto user;
-            try
+            var userId = User.FindFirst("userId")?.Value;
+            if (!string.IsNullOrEmpty(userId))
             {
-                //get userId from token
-                userId = Int32.Parse(User.FindFirst("userId")?.Value);
-                // get user by id
-                user = await _userRepository.GetUserByIdAsync(userId);
+                var user = await _userRepository.GetUserByIdAsync(int.Parse(userId));
                 dto.GuestName = user.Name;
                 dto.GuestPhone = user.Phone;
                 dto.GuestEmail = user.Email;
                 dto.GuestAddress = user.Address;
             }
-            catch (System.Exception)
+
+            if (dto.GuestName == null || dto.GuestEmail == null || dto.GuestEmail == null || dto.GuestAddress == null)
             {
-                // add order history 
-                if (await _orderHistoryRepository.AddOrderHistoryAsync(dto))
-                {
-                    return Ok("Hire Worker without log in Successfully.");
-
-                }
-                return BadRequest();
-
+                return BadRequest("Some fields of Guest are empty");
             }
 
-            // add order history 
-            if (await _orderHistoryRepository.AddOrderHistoryAsync(dto))
-            {
-                return Ok("Hire Worker with login Successfully.");
+            var orderHistory = _mapper.Map<OrderHistory>(dto);
+
+            var worker = await _workerRepository.GetWorkerEntityByIdAsync(dto.WorkerId);
+
+            worker.OrderHistories.Add(orderHistory);
+
+            if(await _workerRepository.SaveAllAsync()) {
+                return CreatedAtAction(nameof(GetOrderHistoryByPage),
+                new {}, _mapper.Map<OrderHistoryDto>(orderHistory));
             }
-            return BadRequest();
+
+            return BadRequest("Problem hiring the worker");
+        
         }
     }
 

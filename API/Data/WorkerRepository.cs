@@ -42,6 +42,23 @@ public class WorkerRepository : IWorkerRepository
             .SingleOrDefaultAsync();
     }
 
+    public async Task<Worker> GetWorkerEntityByIdAsync(int id)
+    {
+        var worker = await _context.Workers
+            .Include(x => x.OrderHistories)
+            .Where(x => x.Id == id)
+            .FirstOrDefaultAsync();
+
+        foreach (var item in worker.OrderHistories)
+        {
+            System.Console.WriteLine("-------");
+            System.Console.WriteLine(item.GuestName);
+            System.Console.WriteLine(item.Review);
+        }
+
+        return worker;
+    }
+
     public async Task<bool> SaveAllAsync()
     {
         return await _context.SaveChangesAsync() > 0;
