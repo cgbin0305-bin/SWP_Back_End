@@ -1,4 +1,6 @@
+using System.Runtime.InteropServices.ComTypes;
 using System.Net;
+using API.Data;
 using API.DTOs;
 using API.Helper;
 using API.Interfaces;
@@ -34,46 +36,14 @@ namespace API.Controllers
     [HttpGet]
     public async Task<ActionResult<WorkersByPage>> GetWorkerByPage([FromQuery(Name = "page")] string pageString)
     {
-      int currentPage;
-      float pageSize = 12f;
+
       var workers = await _workerRepository.GetAllWorkersAsync();
       if (workers is null)
       {
         return BadRequest("Worker is not exist");
       }
 
-      try
-      {
-        currentPage = PageHelper.CurrentPage(pageString, workers.Count(), pageSize);
-      }
-      catch (Exception ex)
-      {
-        return BadRequest(ex.Message);
-      }
-
-      var listWorkerPage = new List<WorkerPage>();
-      foreach (var worker in workers.Skip(currentPage * (int)pageSize).Take((int)pageSize).ToList())
-      {
-        var workerPage = new WorkerPage
-        {
-          Id = worker.Id,
-          Name = worker.Name,
-          Fee = worker.Fee,
-          Status = worker.Status,
-          Address = worker.Address,
-          AverageRate = worker.AverageRate,
-          Chores = worker.Chores
-        };
-        listWorkerPage.Add(workerPage);
-      }
-
-      var resultPage = new WorkersByPage()
-      {
-        Workers = listWorkerPage,
-        CurrentPage = currentPage,
-        TotalElements = workers.Count(),
-        PageSize = (int)pageSize
-      };
+      var resultPage = SearchWorkerHelper.MapWorkerPaginationAsync(pageString, workers);
 
       return Ok(resultPage);
     }
@@ -85,43 +55,9 @@ namespace API.Controllers
       {
         return NoContent();
       }
-
-      int currentPage;
-      float pageSize = 12f;
       var workers = await _workerRepository.SearchWorkersAsync(keyword.ToLower());
 
-      try
-      {
-        currentPage = PageHelper.CurrentPage(pageString, workers.Count(), pageSize);
-      }
-      catch (Exception ex)
-      {
-        return BadRequest(ex.Message);
-      }
-
-      var listWorkerPage = new List<WorkerPage>();
-      foreach (var worker in workers.Skip(currentPage * (int)pageSize).Take((int)pageSize).ToList())
-      {
-        var workerPage = new WorkerPage
-        {
-          Id = worker.Id,
-          Name = worker.Name,
-          Fee = worker.Fee,
-          Status = worker.Status,
-          Address = worker.Address,
-          AverageRate = worker.AverageRate,
-          Chores = worker.Chores
-        };
-        listWorkerPage.Add(workerPage);
-      }
-
-      var resultPage = new WorkersByPage()
-      {
-        Workers = listWorkerPage,
-        CurrentPage = currentPage,
-        TotalElements = workers.Count(),
-        PageSize = (int)pageSize
-      };
+      var resultPage = SearchWorkerHelper.MapWorkerPaginationAsync(pageString, workers);
 
       return Ok(resultPage);
     }
@@ -130,46 +66,40 @@ namespace API.Controllers
     [Authorize(Roles = "admin")]
     public async Task<ActionResult<WorkersByPage>> GetWorkerForAdminByPage([FromQuery(Name = "page")] string pageString)
     {
-      int currentPage;
-      float pageSize = 12f;
+
       var workers = await _workerRepository.GetAllWorkersForAdminAsync();
       if (workers is null)
       {
         return BadRequest("Worker is not exist");
       }
 
-      try
+      var resultPage = SearchWorkerHelper.MapWorkerPaginationAsync(pageString, workers);
+      return Ok(resultPage);
+    }
+    [HttpPost("admin/status")]
+    [Authorize(Roles = "admin")]
+    public async Task<ActionResult> UpdateWorkerStatus(WorkerStatusDto dto)
+    {
+      var checkUpdateStatusIsSuccessOrFail = await _workerRepository.UpdateWorkerStatusAsync(dto);
+      if (!checkUpdateStatusIsSuccessOrFail)
       {
-        currentPage = PageHelper.CurrentPage(pageString, workers.Count(), pageSize);
+        return BadRequest("Fail to update worker status");
       }
-      catch (Exception ex)
-      {
-        return BadRequest(ex.Message);
-      }
+      return NoContent();
+    }
 
-      var listWorkerPage = new List<WorkerPage>();
-      foreach (var worker in workers.Skip(currentPage * (int)pageSize).Take((int)pageSize).ToList())
-      {
-        var workerPage = new WorkerPage
-        {
-          Id = worker.Id,
-          Name = worker.Name,
-          Fee = worker.Fee,
-          Status = worker.Status,
-          Address = worker.Address,
-          AverageRate = worker.AverageRate,
-          Chores = worker.Chores
-        };
-        listWorkerPage.Add(workerPage);
-      }
+    [HttpGet("admin/search")]
+    [Authorize(Roles = "admin")]
 
-      var resultPage = new WorkersByPage()
+    public async Task<ActionResult<WorkersByPage>> SearchWorkersByAdmin([FromQuery(Name = "keyword")] string keyword, [FromQuery(Name = "page")] string pageString)
+    {
+      if (string.IsNullOrWhiteSpace(keyword))
       {
-        Workers = listWorkerPage,
-        CurrentPage = currentPage,
-        TotalElements = workers.Count(),
-        PageSize = (int)pageSize
-      };
+        return NoContent();
+      }
+      var workers = await _workerRepository.SearchWorkersAsync(keyword.ToLower());
+
+      var resultPage = SearchWorkerHelper.MapWorkerPaginationAsync(pageString, workers);
 
       return Ok(resultPage);
     }

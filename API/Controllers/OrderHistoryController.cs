@@ -103,7 +103,7 @@ namespace API.Controllers
                 dto.GuestAddress = user.Address;
             }
 
-            if (dto.GuestName == null || dto.GuestEmail == null || dto.GuestEmail == null || dto.GuestAddress == null)
+            if (string.IsNullOrWhiteSpace(dto.GuestName) || string.IsNullOrWhiteSpace(dto.GuestPhone) || string.IsNullOrWhiteSpace(dto.GuestEmail) || string.IsNullOrWhiteSpace(dto.GuestAddress))
             {
                 return BadRequest("Some fields of Guest are empty");
             }
@@ -114,13 +114,14 @@ namespace API.Controllers
 
             worker.OrderHistories.Add(orderHistory);
 
-            if(await _workerRepository.SaveAllAsync()) {
+            if (await _workerRepository.SaveAllAsync())
+            {
                 return CreatedAtAction(nameof(GetOrderHistoryByPage),
-                new {}, _mapper.Map<OrderHistoryDto>(orderHistory));
+                new { }, _mapper.Map<OrderHistoryDto>(orderHistory));
             }
 
             return BadRequest("Problem hiring the worker");
-        
+
         }
     }
 
