@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
+using API.Helper;
 namespace API.Controllers
 {
     public class AccountController : BaseApiController
@@ -16,11 +17,15 @@ namespace API.Controllers
         private readonly ITokenService _tokenService;
 
         private readonly ISendMailService _sendMailService;
-        public AccountController(WebContext context, ITokenService tokenService, ISendMailService sendMailService)
+
+        private readonly IUserRepository _userRepository;
+
+        public AccountController(WebContext context, IUserRepository userRepository, ITokenService tokenService, ISendMailService sendMailService)
         {
             _context = context;
             _tokenService = tokenService;
             _sendMailService = sendMailService;
+            _userRepository = userRepository;
         }
 
         [HttpPost("register")]
@@ -90,10 +95,33 @@ namespace API.Controllers
         }
 
         [HttpGet("admin")]
-        [Authorize("admin")]
-        public async Task<ActionResult<IEnumerable<User>>> GetUserForAdminAsync()
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult<EntityByPage<UserDto>>> GetUserForAdminAsync([FromQuery(Name = "page")] string pageString)
         {
-            return await _context.Users.ToListAsync();
+            var users = await _userRepository.GetAllUsersAsync();
+            if (users is null)
+            {
+                return BadRequest("Users is not exist");
+            }
+
+            var resultPage = MapEntityHelper.MapEntityPaginationAsync<UserDto>(pageString, users, 12f);
+            return Ok(resultPage);
+        }
+
+
+        [HttpGet("admin/search")]
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult<EntityByPage<UserDto>>> SearchUsersByKeyword([FromQuery(Name = "keyword")] string keyword, [FromQuery(Name = "page")] string pageString)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return NotFound();
+            }
+            var users = await _userRepository.SearchUserAsync(keyword.ToLower());
+
+            var resultPage = MapEntityHelper.MapEntityPaginationAsync<UserDto>(pageString, users, 12f);
+
+            return Ok(resultPage);
         }
     }
 }

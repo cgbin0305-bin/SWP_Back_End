@@ -20,21 +20,6 @@ namespace API.Data
             _mapper = mapper;
         }
 
-        public async Task<bool> AddOrderHistoryAsync(HireWorkerInfoDto dto)
-        {
-            OrderHistory orderHistory = new OrderHistory()
-            {
-                Date = DateTime.UtcNow,
-                GuestAddress = dto.GuestAddress,
-                GuestEmail = dto.GuestEmail,
-                GuestName = dto.GuestName,
-                GuestPhone = dto.GuestPhone,
-                WorkerId = dto.WorkerId,
-            };
-            _context.OrderHistories.Add(orderHistory);
-            return await _context.SaveChangesAsync() > 0;
-        }
-
         public async Task<IEnumerable<OrderHistoryDto>> GetAllOrderHistoriesAsync()
         {
             return await _context.OrderHistories

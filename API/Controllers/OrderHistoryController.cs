@@ -28,64 +28,31 @@ namespace API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "admin")]
-        public async Task<ActionResult<OrderHistoryByPage>> GetOrderHistoryByPage([FromQuery(Name = "page")] string pageString)
+        public async Task<ActionResult<EntityByPage<OrderHistoryDto>>> GetOrderHistoryByPage([FromQuery(Name = "page")] string pageString)
         {
-            int currentPage;
-            float pageSize = 25f;
-            var result = (List<OrderHistoryDto>)await _orderHistoryRepository.GetAllOrderHistoriesAsync();
+            var result = await _orderHistoryRepository.GetAllOrderHistoriesAsync();
             if (result is null)
             {
                 return BadRequest("No OrderHistory!");
             }
-            try
-            {
-                currentPage = PageHelper.CurrentPage(pageString, result.Count, pageSize);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-            OrderHistoryByPage orderHistoryByPage = new OrderHistoryByPage
-            {
-                OrderHistories = result.Skip(currentPage * (int)pageSize).Take((int)pageSize).ToList(),
-                CurrentPage = currentPage,
-                PageSize = (int)pageSize,
-                TotalElements = result.Count
-            };
-            return Ok(orderHistoryByPage);
+            
+            var resultPage = MapEntityHelper.MapEntityPaginationAsync<OrderHistoryDto>(pageString, result, 25f);
+            return Ok(resultPage);
         }
 
 
         [HttpGet("search")]
         [Authorize(Roles = "admin")]
-        public async Task<ActionResult<OrderHistoryByPage>> SearchOrderHistories([FromQuery(Name = "keyword")] string keyword, [FromQuery(Name = "page")] string pageString)
+        public async Task<ActionResult<EntityByPage<OrderHistoryDto>>> SearchOrderHistories([FromQuery(Name = "keyword")] string keyword, [FromQuery(Name = "page")] string pageString)
         {
             if (string.IsNullOrWhiteSpace(keyword))
             {
-                return NoContent();
+                return NotFound();
             }
 
-            int currentPage;
-            float pageSize = 25f;
-            var orderHistories = (List<OrderHistoryDto>)await _orderHistoryRepository.SearchOrderHistoriesAsync(keyword.ToLower());
+            var orderHistories = await _orderHistoryRepository.SearchOrderHistoriesAsync(keyword.ToLower());
 
-            try
-            {
-                currentPage = PageHelper.CurrentPage(pageString, orderHistories.Count(), pageSize);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-            var resultPage = new OrderHistoryByPage
-            {
-                OrderHistories = orderHistories.Skip(currentPage * (int)pageSize).Take((int)pageSize).ToList(),
-                CurrentPage = currentPage,
-                TotalElements = orderHistories.Count(),
-                PageSize = (int)pageSize
-            };
+           var resultPage = MapEntityHelper.MapEntityPaginationAsync(pageString, orderHistories, 25f);
 
             return Ok(resultPage);
         }
@@ -111,6 +78,8 @@ namespace API.Controllers
             var orderHistory = _mapper.Map<OrderHistory>(dto);
 
             var worker = await _workerRepository.GetWorkerEntityByIdAsync(dto.WorkerId);
+
+            if(worker == null) return BadRequest("Worker does not exist");
 
             worker.OrderHistories.Add(orderHistory);
 

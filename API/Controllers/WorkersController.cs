@@ -6,16 +6,19 @@ using API.Helper;
 using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 
 namespace API.Controllers
 {
   public class WorkersController : BaseApiController
   {
     private readonly IWorkerRepository _workerRepository;
+    private readonly IMapper _mapper;
 
-    public WorkersController(IWorkerRepository workerRepository)
+    public WorkersController(IWorkerRepository workerRepository, IMapper mapper)
     {
       _workerRepository = workerRepository;
+      _mapper = mapper;
     }
 
     [HttpGet("{id}")]
@@ -34,7 +37,7 @@ namespace API.Controllers
     }
 
     [HttpGet]
-    public async Task<ActionResult<WorkersByPage>> GetWorkerByPage([FromQuery(Name = "page")] string pageString)
+    public async Task<ActionResult<EntityByPage<WorkerPage>>> GetWorkerByPage([FromQuery(Name = "page")] string pageString)
     {
 
       var workers = await _workerRepository.GetAllWorkersAsync();
@@ -43,39 +46,42 @@ namespace API.Controllers
         return BadRequest("Worker is not exist");
       }
 
-      var resultPage = SearchWorkerHelper.MapWorkerPaginationAsync(pageString, workers);
+      var workerPages = workers.Select(x => _mapper.Map<WorkerPage>(x));
+      var resultPage = MapEntityHelper.MapEntityPaginationAsync<WorkerPage>(pageString, workerPages, 12f);
 
       return Ok(resultPage);
     }
 
     [HttpGet("search")]
-    public async Task<ActionResult<WorkersByPage>> SearchWorkers([FromQuery(Name = "keyword")] string keyword, [FromQuery(Name = "page")] string pageString)
+    public async Task<ActionResult<EntityByPage<WorkerPage>>> SearchWorkers([FromQuery(Name = "keyword")] string keyword, [FromQuery(Name = "page")] string pageString)
     {
       if (string.IsNullOrWhiteSpace(keyword))
       {
-        return NoContent();
+        return NotFound();
       }
       var workers = await _workerRepository.SearchWorkersAsync(keyword.ToLower());
 
-      var resultPage = SearchWorkerHelper.MapWorkerPaginationAsync(pageString, workers);
+      var workerPages = workers.Select(x => _mapper.Map<WorkerPage>(x));
+      var resultPage = MapEntityHelper.MapEntityPaginationAsync<WorkerPage>(pageString, workerPages, 12f);
 
       return Ok(resultPage);
     }
 
     [HttpGet("admin")]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<WorkersByPage>> GetWorkerForAdminByPage([FromQuery(Name = "page")] string pageString)
+    public async Task<ActionResult<EntityByPage<WorkerPage>>> GetWorkerForAdminByPage([FromQuery(Name = "page")] string pageString)
     {
-
       var workers = await _workerRepository.GetAllWorkersForAdminAsync();
       if (workers is null)
       {
         return BadRequest("Worker is not exist");
       }
 
-      var resultPage = SearchWorkerHelper.MapWorkerPaginationAsync(pageString, workers);
+      var workerPages = workers.Select(x => _mapper.Map<WorkerPage>(x));
+      var resultPage = MapEntityHelper.MapEntityPaginationAsync<WorkerPage>(pageString, workerPages, 12f);
       return Ok(resultPage);
     }
+
     [HttpPost("admin/status")]
     [Authorize(Roles = "admin")]
     public async Task<ActionResult> UpdateWorkerStatus(WorkerStatusDto dto)
@@ -90,17 +96,15 @@ namespace API.Controllers
 
     [HttpGet("admin/search")]
     [Authorize(Roles = "admin")]
-
-    public async Task<ActionResult<WorkersByPage>> SearchWorkersByAdmin([FromQuery(Name = "keyword")] string keyword, [FromQuery(Name = "page")] string pageString)
+    public async Task<ActionResult<EntityByPage<WorkerPage>>> SearchWorkersByAdmin([FromQuery(Name = "keyword")] string keyword, [FromQuery(Name = "page")] string pageString)
     {
       if (string.IsNullOrWhiteSpace(keyword))
       {
-        return NoContent();
+        return NotFound();
       }
       var workers = await _workerRepository.SearchWorkersAsync(keyword.ToLower());
-
-      var resultPage = SearchWorkerHelper.MapWorkerPaginationAsync(pageString, workers);
-
+      var workerPages = workers.Select(x => _mapper.Map<WorkerPage>(x));
+      var resultPage = MapEntityHelper.MapEntityPaginationAsync<WorkerPage>(pageString, workerPages, 12f);
       return Ok(resultPage);
     }
   }
