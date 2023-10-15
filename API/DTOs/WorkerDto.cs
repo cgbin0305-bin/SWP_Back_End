@@ -20,4 +20,5 @@ public class WorkerDto
 
     public IEnumerable<HouseHoldChoresDto> Chores {set; get;}
 
+    public Guid Version { get; set; }
 }

@@ -39,15 +39,17 @@ public class WorkerRepository : IWorkerRepository
         return await _context.Workers
             .Where(x => x.Id == id && x.Status)
             .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
+            .AsSplitQuery()
             .SingleOrDefaultAsync();
     }
 
     public async Task<Worker> GetWorkerEntityByIdAsync(int id)
     {
         return await _context.Workers
+            .Where(x => x.Id == id)
             .Include(x => x.OrderHistories)
             .Include(x => x.User)
-            .Where(x => x.Id == id)
+            .Include(x => x.Workers_Chores)
             .FirstOrDefaultAsync();
     }
 
@@ -77,10 +79,15 @@ public class WorkerRepository : IWorkerRepository
         var worker = await _context.Workers.Where(w => w.Id == dto.WorkerId).SingleOrDefaultAsync();
         if (worker != null)
         {
+            if(!worker.Version.Equals(new Guid(dto.Version))) {
+                throw new InvalidOperationException("Concurrency conflict detected. Please reload the data.");
+            }
             worker.Status = dto.Status;
+            worker.Version = Guid.NewGuid();
             await _context.SaveChangesAsync();
             return true;
         }
         return false;
     }
+
 }

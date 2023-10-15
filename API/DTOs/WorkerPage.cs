@@ -18,6 +18,7 @@ namespace API.DTOs
         public int AverageRate { get; set; }
         
         public IEnumerable<HouseHoldChoresDto> Chores { set; get; }
-        
+
+        public Guid Version { get; set; }   
     }
 }

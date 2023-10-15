@@ -9,5 +9,7 @@ namespace API.DTOs
         public int WorkerId { get; set; }
         [Required]
         public bool Status { get; set; }
+        [Required]
+        public string Version {set; get;}
     }
 }

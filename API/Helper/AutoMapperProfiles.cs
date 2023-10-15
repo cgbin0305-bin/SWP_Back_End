@@ -29,5 +29,13 @@ public class AutoMapperProfiles : Profile
             .ForMember(dest => dest.GuestName, opt => opt.MapFrom(src => src.OrderHistory.GuestName));
         CreateMap<HouseHoldChores, HouseHoldChoresDto>();
         CreateMap<HireWorkerInfoDto, OrderHistory>();
+        CreateMap<WorkerUpdateDto, Worker>()
+        .BeforeMap((src, dest) =>
+        {
+            dest.User.Name = src.Name;
+            dest.User.Address = src.Address;
+        })
+        .ForMember(dest => dest.Workers_Chores, opt => opt.MapFrom(src => src.Chores.Select(x => new Workers_Chores { WorkerId = src.Id, ChoreId = x })))
+        .ForMember(dest => dest.Version, opt => opt.Ignore());
     }
 }

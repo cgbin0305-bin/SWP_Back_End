@@ -86,12 +86,19 @@ namespace API.Controllers
     [Authorize(Roles = "admin")]
     public async Task<ActionResult> UpdateWorkerStatus(WorkerStatusDto dto)
     {
-      var checkUpdateStatusIsSuccessOrFail = await _workerRepository.UpdateWorkerStatusAsync(dto);
-      if (!checkUpdateStatusIsSuccessOrFail)
+      try
       {
-        return BadRequest("Fail to update worker status");
+        var checkUpdateStatusIsSuccessOrFail = await _workerRepository.UpdateWorkerStatusAsync(dto);
+        if (!checkUpdateStatusIsSuccessOrFail)
+        {
+          return BadRequest("Fail to update worker status");
+        }
+        return NoContent();
       }
-      return NoContent();
+      catch (InvalidOperationException ex)
+      {
+        return BadRequest(ex.Message);
+      }
     }
 
     [HttpGet("admin/search")]
@@ -106,6 +113,28 @@ namespace API.Controllers
       var workerPages = workers.Select(x => _mapper.Map<WorkerPage>(x));
       var resultPage = MapEntityHelper.MapEntityPaginationAsync<WorkerPage>(pageString, workerPages, 12f);
       return Ok(resultPage);
+    }
+
+    [HttpPut("admin/update")]
+    [Authorize(Roles = "admin")]
+    public async Task<ActionResult> UpdateWorkerInfo(WorkerUpdateDto workerUpdateDto)
+    {
+      var worker = await _workerRepository.GetWorkerEntityByIdAsync(workerUpdateDto.Id);
+
+      if (worker == null) return NotFound();
+
+      if (!worker.Version.Equals(new Guid(workerUpdateDto.Version)))
+      {
+        return BadRequest("Concurrency conflict detected. Please reload the data.");
+      }
+
+      _mapper.Map(workerUpdateDto, worker);
+      worker.Version = Guid.NewGuid(); // update the new version 
+
+      if (await _workerRepository.SaveAllAsync()) return NoContent();
+
+      return BadRequest("Fail to update worker infomation");
+
     }
   }
 }
