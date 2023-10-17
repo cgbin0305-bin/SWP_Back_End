@@ -19,6 +19,11 @@ public class WorkerRepository : IWorkerRepository
         _mapper = mapper;
     }
 
+    public async Task<bool> CheckWorkerExistAsync(string Email, string Phone)
+    {
+        return await _context.Users.AnyAsync(u => u.Email == Email.ToLower() || u.Phone == Phone);
+    }
+
     public async Task<IEnumerable<WorkerDto>> GetAllWorkersAsync()
     {
         return await _context.Workers
@@ -58,11 +63,10 @@ public class WorkerRepository : IWorkerRepository
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task<IEnumerable<WorkerDto>> SearchWorkersAsync(string keyword)
+    public async Task<IEnumerable<WorkerDto>> SearchWorkersByAdminAsync(string keyword)
     {
         // keyword is name, address or chores
         var workers = await _context.Workers
-            .Where(x => x.Status)
             .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
             .AsQueryable()
             .ToListAsync();
@@ -71,15 +75,22 @@ public class WorkerRepository : IWorkerRepository
             || x.Address.ToLower().Contains(keyword)
             || x.Chores.Any(chore => chore.Name.ToLower().Contains(keyword)
             || chore.Description.ToLower().Contains(keyword)));
-
         return result;
     }
+
+    public async Task<IEnumerable<WorkerDto>> SearchWorkersAsync(string keyword)
+    {
+        var workers = await SearchWorkersAsync(keyword);
+        return workers.Where(x => x.Status).ToList();
+    }
+
     public async Task<bool> UpdateWorkerStatusAsync(WorkerStatusDto dto)
     {
         var worker = await _context.Workers.Where(w => w.Id == dto.WorkerId).SingleOrDefaultAsync();
         if (worker != null)
         {
-            if(!worker.Version.Equals(new Guid(dto.Version))) {
+            if (!worker.Version.Equals(new Guid(dto.Version)))
+            {
                 throw new InvalidOperationException("Concurrency conflict detected. Please reload the data.");
             }
             worker.Status = dto.Status;

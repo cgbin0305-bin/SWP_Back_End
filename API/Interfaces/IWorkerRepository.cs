@@ -12,11 +12,13 @@ public interface IWorkerRepository
     Task<IEnumerable<WorkerDto>> GetAllWorkersAsync();
 
     Task<IEnumerable<WorkerDto>> SearchWorkersAsync(string keyword);
+    Task<IEnumerable<WorkerDto>> SearchWorkersByAdminAsync(string keyword);
 
     Task<IEnumerable<WorkerDto>> GetAllWorkersForAdminAsync();
 
     Task<Worker> GetWorkerEntityByIdAsync(int id);
-    
+
     Task<bool> UpdateWorkerStatusAsync(WorkerStatusDto dto);
+    Task<bool> CheckWorkerExistAsync(string Email, string Phone);
 
 }

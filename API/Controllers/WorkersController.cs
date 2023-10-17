@@ -133,7 +133,7 @@ namespace API.Controllers
 
       if (await _workerRepository.SaveAllAsync()) return NoContent();
 
-      return BadRequest("Fail to update worker infomation");
+      return BadRequest("Fail to update worker information");
 
     }
   }

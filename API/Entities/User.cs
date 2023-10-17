@@ -20,7 +20,7 @@ namespace API.Entities
         [Required]
         public string Address { get; set; }
 
-        public string Role { get; set; }
+        public string Role { get; set; } = "User".ToLower();
 
         public Worker Worker { get; set; }
 

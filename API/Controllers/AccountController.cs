@@ -8,23 +8,24 @@ using System.Security.Cryptography;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using API.Helper;
+using AutoMapper;
 namespace API.Controllers
 {
     public class AccountController : BaseApiController
     {
-        private readonly WebContext _context;
-
         private readonly ITokenService _tokenService;
 
         private readonly ISendMailService _sendMailService;
-
+        private readonly IMapper _mapper;
+        private readonly IWorkerRepository _workerRepository;
         private readonly IUserRepository _userRepository;
 
-        public AccountController(WebContext context, IUserRepository userRepository, ITokenService tokenService, ISendMailService sendMailService)
+        public AccountController(IUserRepository userRepository, ITokenService tokenService, ISendMailService sendMailService, IMapper mapper, IWorkerRepository workerRepository)
         {
-            _context = context;
             _tokenService = tokenService;
             _sendMailService = sendMailService;
+            _mapper = mapper;
+            _workerRepository = workerRepository;
             _userRepository = userRepository;
         }
 
@@ -34,45 +35,36 @@ namespace API.Controllers
 
             var mailContent = new MailContent();
             // Check if there email or phone is exist
-            if (await WorkerExist(registerDto.Email, registerDto.Phone))
+            if (await _workerRepository.CheckWorkerExistAsync(registerDto.Email, registerDto.Phone))
             {
                 return BadRequest("This worker is taken by email or phone number");
             }
-            // set all prop in registerDto into user and worker table
-            using var hmac = new HMACSHA512();
-            var user = new User()
-            {
-                Name = registerDto.Name,
-                Email = registerDto.Email,
-                Phone = registerDto.Phone,
-                Role = "User".ToLower(),
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-                PasswordSalt = hmac.Key,
-                Address = registerDto.Address
-            };
+            var user = _mapper.Map<User>(registerDto);
 
-
-            // set up to send mail 
-            mailContent.Subject = "Dang ky tai khoan thanh cong";
-            mailContent.Body = $"Cam on {registerDto.Name} da dang ky tai khoan";
-            mailContent.To = registerDto.Email;
-            // send mail
-            await _sendMailService.SendMailAsync(mailContent);
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-            // return to client worker name and there token
-            return new TokenDto
+            // add User to DB
+            if (await _userRepository.AddUserAsync(user))
             {
-                Name = user.Name,
-                Token = _tokenService.CreateToken(user)
-            };
+                // set up to send mail 
+                mailContent.Subject = "Dang ky tai khoan thanh cong";
+                mailContent.Body = $"Cam on {registerDto.Name} da dang ky tai khoan";
+                mailContent.To = registerDto.Email;
+                // send mail
+                await _sendMailService.SendMailAsync(mailContent);
+                // return to client worker name and there token
+                return new TokenDto
+                {
+                    Name = user.Name,
+                    Token = _tokenService.CreateToken(user)
+                };
+            }
+            return BadRequest("Some Problem in Signing Up");
         }
 
         [HttpPost("login")]
         public async Task<ActionResult<TokenDto>> Login(LoginDto loginDto)
         {
             // check if user email is not exist
-            var user = await _context.Users.FirstOrDefaultAsync(user => user.Email.Equals(loginDto.Email));
+            var user = await _userRepository.CheckUserExistAsync(loginDto);
             if (user is null) return Unauthorized("Invalid Email");
             //check password by reverse to what we did before computed hash
             using var hmac = new HMACSHA512(user.PasswordSalt);
@@ -88,12 +80,6 @@ namespace API.Controllers
                 Token = _tokenService.CreateToken(user)
             };
         }
-
-        private async Task<bool> WorkerExist(string Email, string Phone)
-        {
-            return await _context.Users.AnyAsync(u => u.Email == Email.ToLower() || u.Phone == Phone);
-        }
-
         [HttpGet("admin")]
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<EntityByPage<UserDto>>> GetUserForAdminAsync([FromQuery(Name = "page")] string pageString)
@@ -122,6 +108,27 @@ namespace API.Controllers
             var resultPage = MapEntityHelper.MapEntityPaginationAsync<UserDto>(pageString, users, 12f);
 
             return Ok(resultPage);
+        }
+
+        [HttpPut("admin/update")]
+        // [Authorize(Roles = "admin")]
+        public async Task<ActionResult> UpdateAccountInfo(AccountUpdateDto accountUpdateDto)
+        {
+            var user = await _userRepository.GetUserEntityByIdAsync(accountUpdateDto.Id);
+            if (user is null)
+            {
+                return NotFound();
+            }
+            if (!user.Version.Equals(new Guid(accountUpdateDto.Version)))
+            {
+                return BadRequest("Concurrency conflict detected. Please reload the data.");
+            }
+
+            _mapper.Map(accountUpdateDto, user);
+            user.Version = Guid.NewGuid();
+            if (await _workerRepository.SaveAllAsync()) return NoContent();
+
+            return BadRequest("Fail to update account information");
         }
     }
 }

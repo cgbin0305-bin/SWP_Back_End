@@ -26,7 +26,8 @@ namespace API.Data
             .SingleOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<UserDto>> GetAllUsersAsync() {
+        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        {
             return await _context.Users
             .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
@@ -40,6 +41,29 @@ namespace API.Data
             .ToListAsync();
 
             return users;
+        }
+
+        public async Task<bool> AddUserAsync(User user)
+        {
+            _context.Users.Add(user);
+            return await SaveChangeAsync();
+        }
+        public async Task<bool> SaveChangeAsync()
+        {
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<User> CheckUserExistAsync(LoginDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(user => user.Email.Equals(dto.Email));
+            return user;
+        }
+
+        public async Task<User> GetUserEntityByIdAsync(int Id)
+        {
+            return await _context.Users
+            .Where(x => x.Id == Id)
+            .FirstOrDefaultAsync();
         }
     }
 }
