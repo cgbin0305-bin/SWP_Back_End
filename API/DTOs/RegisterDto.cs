@@ -12,14 +12,14 @@ namespace API.DTOs
         public string Name { set; get; }
 
         [Required]
-
-        public string Password { set; get; }
+        public string Password { set; get; } 
 
         [Required]
         public string Email { set; get; }
 
         [Required]
         public string Phone { set; get; }
+        
         [Required]
         public string Address { get; set; }
     }

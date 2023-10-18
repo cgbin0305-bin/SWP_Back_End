@@ -5,7 +5,7 @@ namespace API.Helper
 {
     public class MapEntityHelper
     {
-        public static EntityByPage<T> MapEntityPaginationAsync<T>(string pageString, IEnumerable<T> list, float pageSize)
+        public static EntityByPage<T> MapEntityPaginationAsync<T>(string pageString, IEnumerable<T> list, float pageSize = 12f)
         {
             int currentPage;
             try

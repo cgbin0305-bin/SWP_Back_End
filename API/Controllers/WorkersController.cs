@@ -47,7 +47,7 @@ namespace API.Controllers
       }
 
       var workerPages = workers.Select(x => _mapper.Map<WorkerPage>(x));
-      var resultPage = MapEntityHelper.MapEntityPaginationAsync<WorkerPage>(pageString, workerPages, 12f);
+      var resultPage = MapEntityHelper.MapEntityPaginationAsync(pageString, workerPages);
 
       return Ok(resultPage);
     }
@@ -62,7 +62,7 @@ namespace API.Controllers
       var workers = await _workerRepository.SearchWorkersAsync(keyword.ToLower());
 
       var workerPages = workers.Select(x => _mapper.Map<WorkerPage>(x));
-      var resultPage = MapEntityHelper.MapEntityPaginationAsync<WorkerPage>(pageString, workerPages, 12f);
+      var resultPage = MapEntityHelper.MapEntityPaginationAsync(pageString, workerPages);
 
       return Ok(resultPage);
     }
@@ -78,7 +78,7 @@ namespace API.Controllers
       }
 
       var workerPages = workers.Select(x => _mapper.Map<WorkerPage>(x));
-      var resultPage = MapEntityHelper.MapEntityPaginationAsync<WorkerPage>(pageString, workerPages, 12f);
+      var resultPage = MapEntityHelper.MapEntityPaginationAsync(pageString, workerPages);
       return Ok(resultPage);
     }
 
@@ -109,9 +109,9 @@ namespace API.Controllers
       {
         return NotFound();
       }
-      var workers = await _workerRepository.SearchWorkersAsync(keyword.ToLower());
+      var workers = await _workerRepository.SearchWorkersByAdminAsync(keyword.ToLower());
       var workerPages = workers.Select(x => _mapper.Map<WorkerPage>(x));
-      var resultPage = MapEntityHelper.MapEntityPaginationAsync<WorkerPage>(pageString, workerPages, 12f);
+      var resultPage = MapEntityHelper.MapEntityPaginationAsync(pageString, workerPages);
       return Ok(resultPage);
     }
 

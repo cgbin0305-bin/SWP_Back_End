@@ -15,5 +15,7 @@ namespace API.Interfaces
         Task<bool> SaveChangeAsync();
         Task<User> CheckUserExistAsync(LoginDto dto);
         Task<User> GetUserEntityByIdAsync(int Id);
+
+        Task<bool> DeleteUser(User user);
     }
 }

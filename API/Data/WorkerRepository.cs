@@ -63,25 +63,34 @@ public class WorkerRepository : IWorkerRepository
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task<IEnumerable<WorkerDto>> SearchWorkersByAdminAsync(string keyword)
-    {
-        // keyword is name, address or chores
-        var workers = await _context.Workers
-            .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
-            .AsQueryable()
-            .ToListAsync();
+    private IQueryable<Worker> SearchQueryWorker(string keyword) {
+         var query = _context.Workers
+            .Include(x => x.OrderHistories)
+            .Include(x => x.User)
+            .Include(x => x.Workers_Chores)
+                .ThenInclude(x => x.Chore)
+            .AsQueryable();
 
-        var result = workers.Where(x => x.Name.ToLower().Contains(keyword)
-            || x.Address.ToLower().Contains(keyword)
-            || x.Chores.Any(chore => chore.Name.ToLower().Contains(keyword)
-            || chore.Description.ToLower().Contains(keyword)));
-        return result;
-    }
+        query = query.Where(x => x.User.Name.ToLower().Contains(keyword)
+            || x.User.Address.ToLower().Contains(keyword)
+            || x.Workers_Chores.Any(chore => chore.Chore.Name.ToLower().Contains(keyword) 
+            || chore.Chore.Description.ToLower().Contains(keyword)));
+
+        return query;
+    } 
 
     public async Task<IEnumerable<WorkerDto>> SearchWorkersAsync(string keyword)
     {
-        var workers = await SearchWorkersAsync(keyword);
-        return workers.Where(x => x.Status).ToList();
+        return await SearchQueryWorker(keyword).Where(x => x.Status)
+        .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
+        .ToListAsync();
+    }
+
+    public async Task<IEnumerable<WorkerDto>> SearchWorkersByAdminAsync(string keyword)
+    {
+        return await SearchQueryWorker(keyword)
+        .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
+        .ToListAsync();
     }
 
     public async Task<bool> UpdateWorkerStatusAsync(WorkerStatusDto dto)

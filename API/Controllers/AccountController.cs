@@ -9,6 +9,7 @@ using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using API.Helper;
 using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 namespace API.Controllers
 {
     public class AccountController : BaseApiController
@@ -80,6 +81,7 @@ namespace API.Controllers
                 Token = _tokenService.CreateToken(user)
             };
         }
+
         [HttpGet("admin")]
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<EntityByPage<UserDto>>> GetUserForAdminAsync([FromQuery(Name = "page")] string pageString)
@@ -93,7 +95,6 @@ namespace API.Controllers
             var resultPage = MapEntityHelper.MapEntityPaginationAsync<UserDto>(pageString, users, 12f);
             return Ok(resultPage);
         }
-
 
         [HttpGet("admin/search")]
         [Authorize(Roles = "admin")]
@@ -129,6 +130,65 @@ namespace API.Controllers
             if (await _workerRepository.SaveAllAsync()) return NoContent();
 
             return BadRequest("Fail to update account information");
+        }
+
+        [HttpPost("admin/add")]
+        // [Authorize(Roles = "admin")]
+        public async Task<ActionResult<UserDto>> CreateNewAccountByAdmin([FromBody] RegisterDto dto)
+        {
+            if (await _workerRepository.CheckWorkerExistAsync(dto.Email, dto.Phone))
+            {
+                return BadRequest("Email or phone number is taken");
+            }
+            var user = _mapper.Map<User>(dto);
+
+            // add User to DB
+            if (await _userRepository.AddUserAsync(user))
+            {
+                // return CreatedAtAction(nameof(GetUserForAdminAsync),
+                // new {pageString = 0 }, _mapper.Map<UserDto>(user));
+                return Ok();
+            }
+                return BadRequest("Problem adding new account");
+            
+        }
+
+        [HttpDelete("admin/delete/{id}")]
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult> DeleteAccountByAdmin(int id)
+        {
+            var account = await _userRepository.GetUserEntityByIdAsync(id);
+
+            if (account is null) return BadRequest("Concurrency conflict detected. Please reload the data.");
+
+            if (account.Role == "worker")
+            {   
+                var updateWorker = new WorkerStatusDto
+                {
+                    WorkerId = account.Id,
+                    Status = false,
+                    Version = account.Worker.Version.ToString()
+                };
+                try
+                {
+                    if (!await _workerRepository.UpdateWorkerStatusAsync(updateWorker))
+                    {
+                        return BadRequest("Fail to update worker status");
+                    }
+                    return Ok();
+                }
+                catch (InvalidOperationException ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+
+            if(await _userRepository.DeleteUser(account)) {
+                return Ok();
+            }
+
+            return BadRequest("Problem deleteting the account");
         }
     }
 }

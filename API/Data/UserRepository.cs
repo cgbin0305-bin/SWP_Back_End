@@ -63,7 +63,13 @@ namespace API.Data
         {
             return await _context.Users
             .Where(x => x.Id == Id)
+            .Include(x => x.Worker)
             .FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> DeleteUser(User user) {
+            _context.Users.Remove(user);
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }
