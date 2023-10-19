@@ -17,5 +17,7 @@ namespace API.Interfaces
         Task<User> GetUserEntityByIdAsync(int Id);
 
         Task<bool> DeleteUser(User user);
+
+        Task<bool> CheckUserExistAsync(string Email, string Phone);
     }
 }

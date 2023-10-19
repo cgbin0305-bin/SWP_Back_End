@@ -36,7 +36,7 @@ namespace API.Controllers
                 return BadRequest("No OrderHistory!");
             }
             
-            var resultPage = MapEntityHelper.MapEntityPaginationAsync<OrderHistoryDto>(pageString, result, 25f);
+            var resultPage = MapEntityHelper.MapEntityPaginationAsync(pageString, result, 25f);
             return Ok(resultPage);
         }
 

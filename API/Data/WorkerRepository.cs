@@ -19,11 +19,6 @@ public class WorkerRepository : IWorkerRepository
         _mapper = mapper;
     }
 
-    public async Task<bool> CheckWorkerExistAsync(string Email, string Phone)
-    {
-        return await _context.Users.AnyAsync(u => u.Email == Email.ToLower() || u.Phone == Phone);
-    }
-
     public async Task<IEnumerable<WorkerDto>> GetAllWorkersAsync()
     {
         return await _context.Workers

@@ -11,5 +11,7 @@ public class UserDto
 
         public string Role { get; set; }
 
+        public string Version { get; set; }
+
 }
 

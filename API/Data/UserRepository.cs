@@ -67,9 +67,15 @@ namespace API.Data
             .FirstOrDefaultAsync();
         }
 
-        public async Task<bool> DeleteUser(User user) {
+        public async Task<bool> DeleteUser(User user)
+        {
             _context.Users.Remove(user);
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> CheckUserExistAsync(string Email, string Phone)
+        {
+            return await _context.Users.AnyAsync(u => u.Email.ToLower() == Email.ToLower() || u.Phone == Phone);
         }
     }
 }

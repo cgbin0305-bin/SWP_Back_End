@@ -20,6 +20,5 @@ public interface IWorkerRepository
     Task<Worker> GetWorkerEntityByIdAsync(int id);
 
     Task<bool> UpdateWorkerStatusAsync(WorkerStatusDto dto);
-    Task<bool> CheckWorkerExistAsync(string Email, string Phone);
 
 }

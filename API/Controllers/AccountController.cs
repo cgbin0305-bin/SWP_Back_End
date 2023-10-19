@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using API.Helper;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Errors;
 namespace API.Controllers
 {
     public class AccountController : BaseApiController
@@ -36,9 +37,9 @@ namespace API.Controllers
 
             var mailContent = new MailContent();
             // Check if there email or phone is exist
-            if (await _workerRepository.CheckWorkerExistAsync(registerDto.Email, registerDto.Phone))
+            if (await _userRepository.CheckUserExistAsync(registerDto.Email, registerDto.Phone))
             {
-                return BadRequest("This worker is taken by email or phone number");
+                throw new EmailOrPhoneIsTakenException();
             }
             var user = _mapper.Map<User>(registerDto);
 
@@ -92,7 +93,7 @@ namespace API.Controllers
                 return BadRequest("Users is not exist");
             }
 
-            var resultPage = MapEntityHelper.MapEntityPaginationAsync<UserDto>(pageString, users, 12f);
+            var resultPage = MapEntityHelper.MapEntityPaginationAsync(pageString, users);
             return Ok(resultPage);
         }
 
@@ -106,7 +107,7 @@ namespace API.Controllers
             }
             var users = await _userRepository.SearchUserAsync(keyword.ToLower());
 
-            var resultPage = MapEntityHelper.MapEntityPaginationAsync<UserDto>(pageString, users, 12f);
+            var resultPage = MapEntityHelper.MapEntityPaginationAsync<UserDto>(pageString, users);
 
             return Ok(resultPage);
         }
@@ -133,12 +134,12 @@ namespace API.Controllers
         }
 
         [HttpPost("admin/add")]
-        // [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<UserDto>> CreateNewAccountByAdmin([FromBody] RegisterDto dto)
         {
-            if (await _workerRepository.CheckWorkerExistAsync(dto.Email, dto.Phone))
+            if (await _userRepository.CheckUserExistAsync(dto.Email, dto.Phone))
             {
-                return BadRequest("Email or phone number is taken");
+                throw new EmailOrPhoneIsTakenException();
             }
             var user = _mapper.Map<User>(dto);
 
@@ -146,11 +147,10 @@ namespace API.Controllers
             if (await _userRepository.AddUserAsync(user))
             {
                 // return CreatedAtAction(nameof(GetUserForAdminAsync),
-                // new {pageString = 0 }, _mapper.Map<UserDto>(user));
+                // new {}, _mapper.Map<UserDto>(user));
                 return Ok();
             }
-                return BadRequest("Problem adding new account");
-            
+            return BadRequest("Problem adding new account");
         }
 
         [HttpDelete("admin/delete/{id}")]
@@ -159,36 +159,20 @@ namespace API.Controllers
         {
             var account = await _userRepository.GetUserEntityByIdAsync(id);
 
-            if (account is null) return BadRequest("Concurrency conflict detected. Please reload the data.");
+            if (account is null) return NotFound();
 
-            if (account.Role == "worker")
-            {   
-                var updateWorker = new WorkerStatusDto
+            if (account.Role.Equals("user"))
+            {
+                if (await _userRepository.DeleteUser(account))
                 {
-                    WorkerId = account.Id,
-                    Status = false,
-                    Version = account.Worker.Version.ToString()
-                };
-                try
-                {
-                    if (!await _workerRepository.UpdateWorkerStatusAsync(updateWorker))
-                    {
-                        return BadRequest("Fail to update worker status");
-                    }
                     return Ok();
                 }
-                catch (InvalidOperationException ex)
-                {
-
-                    return BadRequest(ex.Message);
-                }
+                return BadRequest("Problem deleteting the account");
             }
-
-            if(await _userRepository.DeleteUser(account)) {
-                return Ok();
+            else
+            {
+                return BadRequest("Can not delete the account which has role is " + account.Role);
             }
-
-            return BadRequest("Problem deleteting the account");
         }
     }
 }
