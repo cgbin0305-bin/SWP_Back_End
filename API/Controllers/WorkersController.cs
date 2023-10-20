@@ -7,6 +7,7 @@ using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
+using API.Entities;
 
 namespace API.Controllers
 {
@@ -14,11 +15,13 @@ namespace API.Controllers
   {
     private readonly IWorkerRepository _workerRepository;
     private readonly IMapper _mapper;
+    private readonly IUserRepository _userRepository;
 
-    public WorkersController(IWorkerRepository workerRepository, IMapper mapper)
+    public WorkersController(IWorkerRepository workerRepository, IMapper mapper, IUserRepository userRepository)
     {
       _workerRepository = workerRepository;
       _mapper = mapper;
+      _userRepository = userRepository;
     }
 
     [HttpGet("{id}")]
@@ -136,5 +139,7 @@ namespace API.Controllers
       return BadRequest("Fail to update worker information");
 
     }
+
+
   }
 }

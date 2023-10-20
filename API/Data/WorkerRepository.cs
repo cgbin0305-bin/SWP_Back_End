@@ -58,21 +58,22 @@ public class WorkerRepository : IWorkerRepository
         return await _context.SaveChangesAsync() > 0;
     }
 
-    private IQueryable<Worker> SearchQueryWorker(string keyword) {
-         var query = _context.Workers
-            .Include(x => x.OrderHistories)
-            .Include(x => x.User)
-            .Include(x => x.Workers_Chores)
-                .ThenInclude(x => x.Chore)
-            .AsQueryable();
+    private IQueryable<Worker> SearchQueryWorker(string keyword)
+    {
+        var query = _context.Workers
+           .Include(x => x.OrderHistories)
+           .Include(x => x.User)
+           .Include(x => x.Workers_Chores)
+               .ThenInclude(x => x.Chore)
+           .AsQueryable();
 
         query = query.Where(x => x.User.Name.ToLower().Contains(keyword)
             || x.User.Address.ToLower().Contains(keyword)
-            || x.Workers_Chores.Any(chore => chore.Chore.Name.ToLower().Contains(keyword) 
+            || x.Workers_Chores.Any(chore => chore.Chore.Name.ToLower().Contains(keyword)
             || chore.Chore.Description.ToLower().Contains(keyword)));
 
         return query;
-    } 
+    }
 
     public async Task<IEnumerable<WorkerDto>> SearchWorkersAsync(string keyword)
     {
@@ -104,5 +105,4 @@ public class WorkerRepository : IWorkerRepository
         }
         return false;
     }
-
 }

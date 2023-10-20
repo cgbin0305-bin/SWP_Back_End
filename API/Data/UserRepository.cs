@@ -77,5 +77,6 @@ namespace API.Data
         {
             return await _context.Users.AnyAsync(u => u.Email.ToLower() == Email.ToLower() || u.Phone == Phone);
         }
+
     }
 }

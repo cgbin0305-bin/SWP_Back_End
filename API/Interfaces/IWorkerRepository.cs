@@ -20,5 +20,4 @@ public interface IWorkerRepository
     Task<Worker> GetWorkerEntityByIdAsync(int id);
 
     Task<bool> UpdateWorkerStatusAsync(WorkerStatusDto dto);
-
 }

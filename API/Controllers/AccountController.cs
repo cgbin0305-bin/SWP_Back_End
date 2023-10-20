@@ -174,5 +174,33 @@ namespace API.Controllers
                 return BadRequest("Can not delete the account which has role is " + account.Role);
             }
         }
+        [HttpPost("add")]
+        // [Authorize(Roles = "user")]
+        public async Task<ActionResult<WorkerDto>> AddWorker([FromBody] WorkerRegisterDto dto)
+        {
+            var userId = int.Parse(User.FindFirst("userId")?.Value);
+            var user = await _userRepository.GetUserEntityByIdAsync(userId);
+
+            if (user is null) return NotFound();
+
+            var list = dto.choresList.Select(chore =>
+            {
+                return new Workers_Chores { WorkerId = userId, ChoreId = chore };
+            }).ToList();
+            Worker worker = new Worker
+            {
+                Id = userId,
+                Fee = dto.Fee,
+                Workers_Chores = list
+            };
+            user.Role = "worker";
+            user.Worker = worker;
+            if (await _userRepository.SaveChangeAsync())
+            {
+                NoContent();
+            }
+
+            return BadRequest("Fail To User Sign Up To Be a Worker");
+        }
     }
 }
