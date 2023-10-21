@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using API.Entities;
+using Microsoft.VisualBasic;
+using DTOs;
 
 namespace API.Controllers
 {
@@ -42,8 +44,16 @@ namespace API.Controllers
     [HttpGet]
     public async Task<ActionResult<EntityByPage<WorkerPage>>> GetWorkerByPage([FromQuery(Name = "page")] string pageString)
     {
+      var userId = User.FindFirst("userId")?.Value;
+      string address = "";
 
-      var workers = await _workerRepository.GetAllWorkersAsync();
+      if (!string.IsNullOrEmpty(userId))
+      {
+        var user = await _userRepository.GetUserEntityByIdAsync(int.Parse(userId));
+        address = user.Address;
+      }
+
+      var workers = await _workerRepository.GetAllWorkersAsync(address);
       if (workers is null)
       {
         return BadRequest("Worker is not exist");
@@ -120,9 +130,9 @@ namespace API.Controllers
 
     [HttpPut("admin/update")]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult> UpdateWorkerInfo(WorkerUpdateDto workerUpdateDto)
+    public async Task<ActionResult> UpdateWorkerInfoByAdmin(WorkerUpdateDto workerUpdateDto)
     {
-      var worker = await _workerRepository.GetWorkerEntityByIdAsync(workerUpdateDto.Id);
+      var worker = await _workerRepository.GetWorkerEntityByIdAsync(workerUpdateDto.Id, true, true, true);
 
       if (worker == null) return NotFound();
 
@@ -137,8 +147,35 @@ namespace API.Controllers
       if (await _workerRepository.SaveAllAsync()) return NoContent();
 
       return BadRequest("Fail to update worker information");
-
     }
+
+    [HttpGet("orderhistories")]
+    [Authorize(Roles = "worker")]
+    public async Task<ActionResult<IEnumerable<OrderHistory>>> GetOrderHistoryForUser()
+    {
+
+      var userId = int.Parse(User.FindFirst("userId")?.Value);
+
+      var worker = await _workerRepository.GetWorkerEntityByIdAsync(userId, includeOrderHistories: true);
+
+      if (worker is null) return NotFound();
+
+      var orderhistories = worker.OrderHistories;
+
+      if (orderhistories is null || orderhistories.Count == 0) return BadRequest("This worker has never been scheduled");
+
+      var result = orderhistories.Select(x => _mapper.Map<OrderHistoryOfWorkerDto>(x)).ToList();
+
+      return Ok(result);
+    }
+
+    // update info of worker
+    // [HttpPut("update")]
+    // [Authorize(Roles = "worker")]
+    // public async Task<ActionResult> UpdateWorkerInfoByWorker(WorkerUpdateDto workerUpdateDto)
+    // {
+    //   // code here
+    // }
 
 
   }

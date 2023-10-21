@@ -14,7 +14,7 @@ namespace API.Interfaces
         Task<bool> AddUserAsync(User user);
         Task<bool> SaveChangeAsync();
         Task<User> CheckUserExistAsync(LoginDto dto);
-        Task<User> GetUserEntityByIdAsync(int Id);
+        Task<User> GetUserEntityByIdAsync(int Id, bool includeWorker = false);
 
         Task<bool> DeleteUser(User user);
 

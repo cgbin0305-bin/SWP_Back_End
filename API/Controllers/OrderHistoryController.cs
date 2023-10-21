@@ -77,7 +77,7 @@ namespace API.Controllers
 
             var orderHistory = _mapper.Map<OrderHistory>(dto);
 
-            var worker = await _workerRepository.GetWorkerEntityByIdAsync(dto.WorkerId);
+            var worker = await _workerRepository.GetWorkerEntityByIdAsync(dto.WorkerId, true, true);
 
             if(worker == null) return BadRequest("Worker does not exist");
 

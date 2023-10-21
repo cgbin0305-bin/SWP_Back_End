@@ -4,6 +4,7 @@ using API.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace API.Data
 {
@@ -59,12 +60,16 @@ namespace API.Data
             return user;
         }
 
-        public async Task<User> GetUserEntityByIdAsync(int Id)
+        public async Task<User> GetUserEntityByIdAsync(int Id, bool includeWorker = false)
         {
-            return await _context.Users
-            .Where(x => x.Id == Id)
-            .Include(x => x.Worker)
-            .FirstOrDefaultAsync();
+            var query = _context.Users.Where(x => x.Id == Id);
+
+            if (includeWorker)
+            {
+                query = query.Include(x => x.Worker);
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<bool> DeleteUser(User user)

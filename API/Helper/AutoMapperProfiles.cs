@@ -1,6 +1,7 @@
 using API.DTOs;
 using API.Entities;
 using AutoMapper;
+using DTOs;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace API.Helper;
@@ -54,5 +55,9 @@ public class AutoMapperProfiles : Profile
             dest.PasswordSalt = hmac.Item2;
         })
         .ForMember(dest => dest.Version, opt => opt.Ignore());
+
+        CreateMap<OrderHistory, OrderHistoryOfWorkerDto>()
+            .ForMember(dest => dest.Review, opt => opt.MapFrom(src => src.Review))
+            .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => src.Review != null ? src.Review.Rate : 0));
     }
 }

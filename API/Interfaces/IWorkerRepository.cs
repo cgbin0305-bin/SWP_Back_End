@@ -9,7 +9,7 @@ public interface IWorkerRepository
 
     Task<WorkerDto> GetWorkerByIdAsync(int id);
 
-    Task<IEnumerable<WorkerDto>> GetAllWorkersAsync();
+    Task<IEnumerable<WorkerDto>> GetAllWorkersAsync(string address);
 
     Task<IEnumerable<WorkerDto>> SearchWorkersAsync(string keyword);
 
@@ -17,7 +17,7 @@ public interface IWorkerRepository
 
     Task<IEnumerable<WorkerDto>> GetAllWorkersForAdminAsync();
 
-    Task<Worker> GetWorkerEntityByIdAsync(int id);
+    Task<Worker> GetWorkerEntityByIdAsync(int id, bool includeOrderHistories = false, bool includeUser = false, bool includeWorkersChores = false);
 
     Task<bool> UpdateWorkerStatusAsync(WorkerStatusDto dto);
 }

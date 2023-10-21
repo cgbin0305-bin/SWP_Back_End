@@ -112,27 +112,6 @@ namespace API.Controllers
             return Ok(resultPage);
         }
 
-        [HttpPut("admin/update")]
-        // [Authorize(Roles = "admin")]
-        public async Task<ActionResult> UpdateAccountInfo(AccountUpdateDto accountUpdateDto)
-        {
-            var user = await _userRepository.GetUserEntityByIdAsync(accountUpdateDto.Id);
-            if (user is null)
-            {
-                return NotFound();
-            }
-            if (!user.Version.Equals(new Guid(accountUpdateDto.Version)))
-            {
-                return BadRequest("Concurrency conflict detected. Please reload the data.");
-            }
-
-            _mapper.Map(accountUpdateDto, user);
-            user.Version = Guid.NewGuid();
-            if (await _workerRepository.SaveAllAsync()) return NoContent();
-
-            return BadRequest("Fail to update account information");
-        }
-
         [HttpPost("admin/add")]
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<UserDto>> CreateNewAccountByAdmin([FromBody] RegisterDto dto)
@@ -148,7 +127,7 @@ namespace API.Controllers
             {
                 // return CreatedAtAction(nameof(GetUserForAdminAsync),
                 // new {}, _mapper.Map<UserDto>(user));
-                return Ok();
+                return Ok( _mapper.Map<UserDto>(user));
             }
             return BadRequest("Problem adding new account");
         }
@@ -174,12 +153,13 @@ namespace API.Controllers
                 return BadRequest("Can not delete the account which has role is " + account.Role);
             }
         }
-        [HttpPost("add")]
-        // [Authorize(Roles = "user")]
-        public async Task<ActionResult<WorkerDto>> AddWorker([FromBody] WorkerRegisterDto dto)
+
+        [HttpPost("user/add")]
+        [Authorize(Roles = "user")]
+        public async Task<ActionResult<WorkerDto>> UpdateUserToWorker([FromBody] WorkerRegisterDto dto)
         {
             var userId = int.Parse(User.FindFirst("userId")?.Value);
-            var user = await _userRepository.GetUserEntityByIdAsync(userId);
+            var user = await _userRepository.GetUserEntityByIdAsync(userId, includeWorker: true);
 
             if (user is null) return NotFound();
 
@@ -202,5 +182,14 @@ namespace API.Controllers
 
             return BadRequest("Fail To User Sign Up To Be a Worker");
         }
+
+        // update user infor not done.
+        // Update có thay đổi email vs phone thì phải email hoặc sms về
+        // [HttpPut("update")]
+        // [Authorize(Roles = "user, worker")]
+        // public async Task<ActionResult> UpdateAccountInfo(AccountUpdateDto accountUpdateDto)
+        // {
+        //     // code here
+        // }
     }
 }

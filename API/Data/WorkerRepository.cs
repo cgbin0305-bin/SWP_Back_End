@@ -4,6 +4,7 @@ using API.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace API.Data;
 
@@ -19,17 +20,25 @@ public class WorkerRepository : IWorkerRepository
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<WorkerDto>> GetAllWorkersAsync()
+    public async Task<IEnumerable<WorkerDto>> GetAllWorkersAsync(string address)
     {
-        return await _context.Workers
-            .Where(x => x.Status)
-            .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
+
+        var query = _context.Workers.Include(x => x.User).Where(x => x.Status);
+
+        if (!string.IsNullOrEmpty(address))
+        {
+            query = query.OrderBy(worker => worker.User.Address == address ? 0 : 1) // User's address first
+            .ThenBy(worker => worker.User.Address); // Alphabetical order for other addresses
+        }
+
+        return await query.ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
     }
 
     public async Task<IEnumerable<WorkerDto>> GetAllWorkersForAdminAsync()
     {
         return await _context.Workers
+            .OrderBy(x => x.Id)
             .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
     }
@@ -43,15 +52,29 @@ public class WorkerRepository : IWorkerRepository
             .SingleOrDefaultAsync();
     }
 
-    public async Task<Worker> GetWorkerEntityByIdAsync(int id)
+    public async Task<Worker> GetWorkerEntityByIdAsync(int id, bool includeOrderHistories = false, bool includeUser = false, bool includeWorkersChores = false)
     {
-        return await _context.Workers
-            .Where(x => x.Id == id)
-            .Include(x => x.OrderHistories)
-            .Include(x => x.User)
-            .Include(x => x.Workers_Chores)
-            .FirstOrDefaultAsync();
+        var query = _context.Workers.Where(x => x.Id == id);
+
+        if (includeOrderHistories)
+        {
+            query = query.Include(x => x.OrderHistories)
+                .ThenInclude(x => x.Review);
+        }
+
+        if (includeUser)
+        {
+            query = query.Include(x => x.User);
+        }
+
+        if (includeWorkersChores)
+        {
+            query = query.Include(x => x.Workers_Chores);
+        }
+
+        return await query.FirstOrDefaultAsync();
     }
+
 
     public async Task<bool> SaveAllAsync()
     {
@@ -85,6 +108,7 @@ public class WorkerRepository : IWorkerRepository
     public async Task<IEnumerable<WorkerDto>> SearchWorkersByAdminAsync(string keyword)
     {
         return await SearchQueryWorker(keyword)
+        .OrderBy(x => x.Id)
         .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
         .ToListAsync();
     }
