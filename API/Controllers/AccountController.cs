@@ -35,7 +35,7 @@ namespace API.Controllers
         public async Task<ActionResult<TokenDto>> Register(RegisterDto registerDto)
         {
 
-            var mailContent = new MailContent();
+
             // Check if there email or phone is exist
             if (await _userRepository.CheckUserExistAsync(registerDto.Email, registerDto.Phone))
             {
@@ -46,10 +46,14 @@ namespace API.Controllers
             // add User to DB
             if (await _userRepository.AddUserAsync(user))
             {
+                string path = @"D:\FPT\SWP\SWP_Back_End\API\MailContent\RegisterSuccessfull.html";
                 // set up to send mail 
-                mailContent.Subject = "Dang ky tai khoan thanh cong";
-                mailContent.Body = $"Cam on {registerDto.Name} da dang ky tai khoan";
-                mailContent.To = registerDto.Email;
+                var mailContent = new MailContent()
+                {
+                    Subject = "Dang ky tai khoan thanh cong",
+                    Body = ReadFileHelper.ReadFile(path),
+                    To = registerDto.Email
+                };
                 // send mail
                 await _sendMailService.SendMailAsync(mailContent);
                 // return to client worker name and there token
@@ -127,7 +131,7 @@ namespace API.Controllers
             {
                 // return CreatedAtAction(nameof(GetUserForAdminAsync),
                 // new {}, _mapper.Map<UserDto>(user));
-                return Ok( _mapper.Map<UserDto>(user));
+                return Ok(_mapper.Map<UserDto>(user));
             }
             return BadRequest("Problem adding new account");
         }
@@ -146,7 +150,7 @@ namespace API.Controllers
                 {
                     return Ok();
                 }
-                return BadRequest("Problem deleteting the account");
+                return BadRequest("Problem deleting the account");
             }
             else
             {
@@ -177,19 +181,42 @@ namespace API.Controllers
             user.Worker = worker;
             if (await _userRepository.SaveChangeAsync())
             {
-                NoContent();
+                return NoContent();
             }
 
             return BadRequest("Fail To User Sign Up To Be a Worker");
         }
 
-        // update user infor not done.
+        // update user information not done.
         // Update có thay đổi email vs phone thì phải email hoặc sms về
-        // [HttpPut("update")]
-        // [Authorize(Roles = "user, worker")]
-        // public async Task<ActionResult> UpdateAccountInfo(AccountUpdateDto accountUpdateDto)
-        // {
-        //     // code here
-        // }
+        [HttpPut("update")]
+        [Authorize(Roles = "user, worker")]
+        public async Task<ActionResult> UpdateAccountInfo(AccountUpdateDto accountUpdateDto)
+        {
+            // get account Id base token
+            var accountId = int.Parse(User.FindFirst("userId")?.Value);
+            // get account
+            var userOrWorker = await _userRepository.GetUserEntityByIdAsync(accountId);
+            // check version
+            if (!userOrWorker.Version.Equals(new Guid(accountUpdateDto.Version)))
+            {
+                throw new InvalidOperationException("Concurrency conflict detected. Please reload the data.");
+            }
+            // update info
+            if (!string.IsNullOrEmpty(accountUpdateDto.Address))
+            {
+                userOrWorker.Address = accountUpdateDto.Address;
+            }
+
+            if (!string.IsNullOrEmpty(accountUpdateDto.Name))
+            {
+                userOrWorker.Name = accountUpdateDto.Name;
+            }
+            // create new version
+            userOrWorker.Version = Guid.NewGuid();
+
+            if (await _userRepository.SaveChangeAsync()) return NoContent();
+            return BadRequest("Fail to update account information");
+        }
     }
 }

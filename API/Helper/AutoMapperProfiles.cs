@@ -47,14 +47,14 @@ public class AutoMapperProfiles : Profile
             dest.PasswordSalt = hmac.Item2;
         });
 
-        CreateMap<AccountUpdateDto, User>()
-        .BeforeMap((src, dest) =>
-        {
-            var hmac = src.Password.GetPasswordHash();
-            dest.PasswordHash = hmac.Item1;
-            dest.PasswordSalt = hmac.Item2;
-        })
-        .ForMember(dest => dest.Version, opt => opt.Ignore());
+        // CreateMap<AccountUpdateDto, User>()
+        // .BeforeMap((src, dest) =>
+        // {
+        //     var hmac = src.Password.GetPasswordHash();
+        //     dest.PasswordHash = hmac.Item1;
+        //     dest.PasswordSalt = hmac.Item2;
+        // })
+        // .ForMember(dest => dest.Version, opt => opt.Ignore());
 
         CreateMap<OrderHistory, OrderHistoryOfWorkerDto>()
             .ForMember(dest => dest.Review, opt => opt.MapFrom(src => src.Review))
