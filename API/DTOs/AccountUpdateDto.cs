@@ -10,7 +10,6 @@ namespace API.DTOs
     {
         public string Name { get; set; }
         public string Address { get; set; }
-        [Required]
-        public string Version { set; get; }
+
     }
 }

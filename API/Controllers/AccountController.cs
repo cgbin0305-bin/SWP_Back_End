@@ -197,11 +197,6 @@ namespace API.Controllers
             var accountId = int.Parse(User.FindFirst("userId")?.Value);
             // get account
             var userOrWorker = await _userRepository.GetUserEntityByIdAsync(accountId);
-            // check version
-            if (!userOrWorker.Version.Equals(new Guid(accountUpdateDto.Version)))
-            {
-                throw new InvalidOperationException("Concurrency conflict detected. Please reload the data.");
-            }
             // update info
             if (!string.IsNullOrEmpty(accountUpdateDto.Address))
             {
@@ -212,8 +207,7 @@ namespace API.Controllers
             {
                 userOrWorker.Name = accountUpdateDto.Name;
             }
-            // create new version
-            userOrWorker.Version = Guid.NewGuid();
+
 
             if (await _userRepository.SaveChangeAsync()) return NoContent();
             return BadRequest("Fail to update account information");
