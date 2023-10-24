@@ -187,8 +187,7 @@ namespace API.Controllers
             return BadRequest("Fail To User Sign Up To Be a Worker");
         }
 
-        // update user information not done.
-        // Update có thay đổi email vs phone thì phải email hoặc sms về
+
         [HttpPut("update")]
         [Authorize(Roles = "user, worker")]
         public async Task<ActionResult> UpdateAccountInfo(AccountUpdateDto accountUpdateDto)
@@ -207,7 +206,6 @@ namespace API.Controllers
             {
                 userOrWorker.Name = accountUpdateDto.Name;
             }
-
 
             if (await _userRepository.SaveChangeAsync()) return NoContent();
             return BadRequest("Fail to update account information");

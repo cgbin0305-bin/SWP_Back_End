@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace API.DTOs;
 
-public class WorkerUpdateDto
+public class WorkerUpdateByAdminDto
 {
     [Required]
     public int Id { get; set; }

@@ -30,7 +30,7 @@ public class AutoMapperProfiles : Profile
             .ForMember(dest => dest.GuestName, opt => opt.MapFrom(src => src.OrderHistory.GuestName));
         CreateMap<HouseHoldChores, HouseHoldChoresDto>();
         CreateMap<HireWorkerInfoDto, OrderHistory>();
-        CreateMap<WorkerUpdateDto, Worker>()
+        CreateMap<WorkerUpdateByAdminDto, Worker>()
         .BeforeMap((src, dest) =>
         {
             dest.User.Name = src.Name;

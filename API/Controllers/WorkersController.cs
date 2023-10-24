@@ -130,18 +130,18 @@ namespace API.Controllers
 
     [HttpPut("admin/update")]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult> UpdateWorkerInfoByAdmin(WorkerUpdateDto workerUpdateDto)
+    public async Task<ActionResult> UpdateWorkerInfoByAdmin(WorkerUpdateByAdminDto workerUpdateByAdminDto)
     {
-      var worker = await _workerRepository.GetWorkerEntityByIdAsync(workerUpdateDto.Id, true, true, true);
+      var worker = await _workerRepository.GetWorkerEntityByIdAsync(workerUpdateByAdminDto.Id, true, true, true);
 
       if (worker == null) return NotFound();
 
-      if (!worker.Version.Equals(new Guid(workerUpdateDto.Version)))
+      if (!worker.Version.Equals(new Guid(workerUpdateByAdminDto.Version)))
       {
         return BadRequest("Concurrency conflict detected. Please reload the data.");
       }
 
-      _mapper.Map(workerUpdateDto, worker);
+      _mapper.Map(workerUpdateByAdminDto, worker);
       worker.Version = Guid.NewGuid(); // update the new version 
 
       if (await _workerRepository.SaveAllAsync()) return NoContent();
@@ -169,7 +169,6 @@ namespace API.Controllers
       return Ok(result);
     }
 
-    // update info of worker
     // [HttpPut("update")]
     // [Authorize(Roles = "worker")]
     // public async Task<ActionResult> UpdateWorkerInfoByWorker(WorkerUpdateDto workerUpdateDto)
