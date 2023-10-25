@@ -1,0 +1,627 @@
+[
+  {
+    "Name": "John Doe",
+    "Phone": "1234567890",
+    "Email": "johndoe@example.com",
+    "Address": "123 Main St",
+    "Role": "user",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Kien Lee",
+    "Phone": "9874563210",
+    "Email": "leekien@example.com",
+    "Address": "123 Main St",
+    "Role": "admin",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Ngoc Quyen",
+    "Phone": "0907589137",
+    "Email": "ngocquyen@example.com",
+    "Address": "Quan 1, Thanh Pho Ho Chi Minh",
+    "Role": "user",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Cao Kien",
+    "Phone": "0909142731",
+    "Email": "caokien@example.com",
+    "Address": "Quan 2, Thanh Pho Ho Chi Minh",
+    "Role": "user",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Ngo Duong",
+    "Phone": "0384251380",
+    "Email": "ngoduong@example.com",
+    "Address": "Quan Binh Thanh, Thanh Pho Ho Chi Minh",
+    "Role": "user",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Canh Trong",
+    "Phone": "0788909221",
+    "Email": "canhtrong@example.com",
+    "Address": "Quan 9, Thanh Pho Ho Chi Minh",
+    "Role": "user",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Phuong Thuy",
+    "Phone": "02832145746",
+    "Email": "phuongthuy0409@example.com",
+    "Address": "Quan 6, Thanh Pho Ho Chi Minh",
+    "Role": "user",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Thai Son",
+    "Phone": "07945123478",
+    "Email": "thaison@example.com",
+    "Address": "Quan Go Vap, Thanh Pho Ho Chi Minh",
+    "Role": "user",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Thai Bao",
+    "Phone": "0945278132",
+    "Email": "thaibao123leekien@example.com",
+    "Address": "Quan 4, Thanh Pho Ho Chi Minh",
+    "Role": "user",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Thien Son",
+    "Phone": "08620314578",
+    "Email": "thienson2301@example.com",
+    "Address": "Quan 6, Thanh Pho Ho Chi Minh",
+    "Role": "user",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Gia Bao",
+    "Phone": "548923101",
+    "Email": "hoanghuy@example.com",
+    "Address": "Quan 2, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 1,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 2,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 3,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ],
+      "OrderHistories": [
+        {
+          "GuestEmail": "leekien@example.com",
+          "GuestName": "kien lee",
+          "GuestPhone": "9874563210",
+          "GuestAddress": "123 Main St",
+          "Date": "2023-09-10",
+          "Review": {
+            "Content": "Hoi ngang suong, kho qua z, tra loi ko duoc",
+            "Date": "2023-09-10",
+            "Rate": 1,
+            "Version": "00000000-0000-0000-0000-000000000000"
+          }
+        },
+        {
+          "GuestEmail": "ngoduong@example.com",
+          "GuestName": "ngo duong",
+          "GuestPhone": "0384251380",
+          "GuestAddress": "Quan Binh Thanh, Thanh Pho Ho Chi Minh",
+          "Date": "2023-09-11",
+          "Review": {
+            "Content": "Don dep sach se, gon gang. Lan sau lai ung ho dich vu tiep",
+            "Date": "2023-09-11",
+            "Rate": 5,
+            "Version": "00000000-0000-0000-0000-000000000000"
+          }
+        },
+        {
+          "GuestEmail": "caokien@example.com",
+          "GuestName": "cao kien",
+          "GuestPhone": "0909142731",
+          "GuestAddress": "Quan 2, Thanh Pho Ho Chi Minh",
+          "Date": "2023-09-12",
+          "Review": {
+            "Content": "Tam on, can khac phuc o khau don ve sinh nha tam",
+            "Date": "2023-09-13",
+            "Rate": 4,
+            "Version": "00000000-0000-0000-0000-000000000000"
+          }
+        },
+        {
+          "GuestEmail": "thienson2301@example.com",
+          "GuestName": "thien son",
+          "GuestPhone": "08620314578",
+          "GuestAddress": "Quan 6, Thanh Pho Ho Chi Minh",
+          "Date": "2023-09-13",
+          "Review": {
+            "Content": "Qua okela, rat thich ban nam don ve sinh nay, sau se ung ho zai dep",
+            "Date": "2023-09-13",
+            "Rate": 5,
+            "Version": "00000000-0000-0000-0000-000000000000"
+          }
+        },
+        {
+          "GuestEmail": "phuongthuy0409@example.com",
+          "GuestName": "phuong thuy",
+          "GuestPhone": "02832145746",
+          "GuestAddress": "Quan 6, Thanh Pho Ho Chi Minh",
+          "Date": "2023-09-13",
+          "Review": {
+            "Content": "Cat co tot lam, ui do con hoi nhan xiu, phat huy lan sau",
+            "Date": "2023-09-13",
+            "Rate": 4,
+            "Version": "00000000-0000-0000-0000-000000000000"
+          }
+        },
+        {
+          "GuestEmail": "lamhoang@example.com",
+          "GuestName": "hoang lam",
+          "GuestPhone": "1247503256898",
+          "GuestAddress": "Quan 9, Thanh Pho Ho Chi Minh",
+          "Date": "2023-09-14",
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Hoang Huy",
+    "Phone": "0896423546",
+    "Email": "trangiabao@example.com",
+    "Address": "Quan 2, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 3,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 4,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 5,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Huy Nguyen",
+    "Phone": "0124785463",
+    "Email": "huycgbin123@example.com",
+    "Address": "Quan 3, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 3,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 4,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 5,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 2,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Bao Khang",
+    "Phone": "052146873",
+    "Email": "khangnguyen0309@example.com",
+    "Address": "Quan 4, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 1,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 4,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 5,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Phuong Thao",
+    "Phone": "012476859",
+    "Email": "phuongthao2k3@example.com",
+    "Address": "Quan 7, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 2,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 3,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 4,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Thuy Ngan",
+    "Phone": "0788491238",
+    "Email": "Thuynganxinhdep@example.com",
+    "Address": "Quan 3, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 3,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 4,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 5,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 1,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 2,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Tommy Teo",
+    "Phone": "0897421546",
+    "Email": "ngaikang123@example.com",
+    "Address": "Quan Binh Tan, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 1,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 2,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 5,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Nguyen Song Toan",
+    "Phone": "0904781234",
+    "Email": "NguyenToan20031202@example.com",
+    "Address": "Quan Binh Tan, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 3,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 4,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 1,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 5,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Song Thu",
+    "Phone": "0751238765",
+    "Email": "songthuchannel@example.com",
+    "Address": "Quan 9, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 3,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 4,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 5,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Ho Quoc Huy",
+    "Phone": "0412576384",
+    "Email": "quochuydepzai123@example.com",
+    "Address": "Quan 7, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 2,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 4,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 5,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Truong Dinh Van",
+    "Phone": "0862451742",
+    "Email": "vandinh@example.com",
+    "Address": "Quan 10, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 1,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 2,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 5,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Tran Dang Khoa",
+    "Phone": "028745129",
+    "Email": "khoatran2k3@example.com",
+    "Address": "Quan 1, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 3,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 4,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 5,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 1,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 2,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Tran Dinh Nam",
+    "Phone": "0145743621",
+    "Email": "namzin2012@example.com",
+    "Address": "Quan 11, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 3,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 4,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 5,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Dinh Quoc",
+    "Phone": "056123178",
+    "Email": "quoctrung@example.com",
+    "Address": "Quan 6, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 1,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 2,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 3,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Dinh Minh Dung",
+    "Phone": "056431256",
+    "Email": "minhdung21@example.com",
+    "Address": "Quan binh tan, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 1,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 2,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 3,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Chu 7",
+    "Phone": "0146235798",
+    "Email": "xuanvantruong21@example.com",
+    "Address": "Quan Binh Tan, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 3,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 4,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 1,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 2,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Trong Canh",
+    "Phone": "067854231",
+    "Email": "trongcanh@example.com",
+    "Address": "Quan 3, Thanh Pho Ho Chi Minh",
+    "Role": "worker",
+    "Worker": {
+      "Fee": 25000,
+      "Status": true,
+      "Workers_Chores": [
+        {
+          "ChoreId": 3,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 2,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        },
+        {
+          "ChoreId": 5,
+          "Version": "00000000-0000-0000-0000-000000000000"
+        }
+      ]
+    },
+    "Version": "00000000-0000-0000-0000-000000000000"
+  }
+]

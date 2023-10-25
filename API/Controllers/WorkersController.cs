@@ -151,7 +151,7 @@ namespace API.Controllers
 
     [HttpGet("orderhistories")]
     [Authorize(Roles = "worker")]
-    public async Task<ActionResult<IEnumerable<OrderHistory>>> GetOrderHistoryForUser()
+    public async Task<ActionResult<IEnumerable<OrderHistoryOfWorkerDto>>> GetOrderHistoryForUser()
     {
 
       var userId = int.Parse(User.FindFirst("userId")?.Value);

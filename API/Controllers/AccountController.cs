@@ -210,5 +210,17 @@ namespace API.Controllers
             if (await _userRepository.SaveChangeAsync()) return NoContent();
             return BadRequest("Fail to update account information");
         }
+        [HttpGet("get_account")]
+        [Authorize(Roles = "user, worker, admin")]
+        public async Task<ActionResult<UserDto>> GetAccountOfUser()
+        {
+            var userId = User.FindFirst("userId")?.Value;
+
+            var account = await _userRepository.GetUserByIdAsync(int.Parse(userId));
+
+            if (account != null) return Ok(account);
+
+            return BadRequest("Account does not exists");
+        }
     }
 }

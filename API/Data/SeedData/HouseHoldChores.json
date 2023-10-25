@@ -1,0 +1,27 @@
+[
+  {
+    "Name": "House Cleaning",
+    "Description": "Dishes, garbage, ... are included",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Cooking",
+    "Description": "Follow your menu order",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": " Gardening",
+    "Description": "Weeding, fertilizing, ...",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Clothing",
+    "Description": "Washing and Laundry",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "Name": "Baby Sister",
+    "Description": "Cooking and Clothing take care are included",
+    "Version": "00000000-0000-0000-0000-000000000000"
+  }
+]
