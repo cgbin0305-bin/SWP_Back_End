@@ -15,7 +15,7 @@ public class AutoMapperProfiles : Profile
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.User.Name))
             .ForMember(dest => dest.Reviews, opt => opt.MapFrom(src => src.OrderHistories.Select(x => x.Review).Where(x => x != null))) // Set to an empty list if null // filter out any null reviews
             .ForMember(dest => dest.CountOrder, opt => opt.MapFrom(src => src.OrderHistories != null && src.OrderHistories.Any() ? src.OrderHistories.Count() : 0))
-            .ForMember(dest => dest.AverageRate, opt => opt.MapFrom(src => src.OrderHistories != null && src.OrderHistories.Any() ?
+            .ForMember(dest => dest.AverageRate, opt => opt.MapFrom(src => src.OrderHistories != null && src.OrderHistories.Any(x => x.Review != null) ?
             (int)src.OrderHistories.Where(x => x.Review != null).Average(x => x.Review.Rate) : 0))
             .ForMember(dest => dest.Chores, opt => opt.MapFrom(src => src.Workers_Chores.Select(x => x.Chore)));
         CreateMap<WorkerDto, WorkerPage>();

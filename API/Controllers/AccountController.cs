@@ -207,6 +207,8 @@ namespace API.Controllers
                 userOrWorker.Name = accountUpdateDto.Name;
             }
 
+            userOrWorker.Phone = accountUpdateDto.Phone;
+
             if (await _userRepository.SaveChangeAsync()) return NoContent();
             return BadRequest("Fail to update account information");
         }

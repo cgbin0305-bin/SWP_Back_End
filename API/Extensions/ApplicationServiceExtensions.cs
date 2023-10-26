@@ -1,5 +1,6 @@
 using API.Data;
 using API.Entities;
+using API.Helper;
 using API.Interfaces;
 using API.Services;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +28,8 @@ public static class ApplicationServiceExtensions
         // add Mail Settings
         services.Configure<MailSettings>(config.GetSection("MailSettings"));
         services.AddTransient<ISendMailService, SendMailService>();
-
+        // add the IOption CloudinarySettings base on which being setup in appsettings.json
+        services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
         return services;
     }
 }
