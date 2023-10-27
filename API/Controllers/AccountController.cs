@@ -3,14 +3,13 @@ using API.DTOs;
 using API.Entities;
 using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using API.Helper;
 using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Errors;
+using System.Text.Json;
 namespace API.Controllers
 {
     public class AccountController : BaseApiController
@@ -19,15 +18,14 @@ namespace API.Controllers
 
         private readonly ISendMailService _sendMailService;
         private readonly IMapper _mapper;
-        private readonly IWorkerRepository _workerRepository;
         private readonly IUserRepository _userRepository;
+        public static string _storeOtpCode;
 
-        public AccountController(IUserRepository userRepository, ITokenService tokenService, ISendMailService sendMailService, IMapper mapper, IWorkerRepository workerRepository)
+        public AccountController(IUserRepository userRepository, ITokenService tokenService, ISendMailService sendMailService, IMapper mapper)
         {
             _tokenService = tokenService;
             _sendMailService = sendMailService;
             _mapper = mapper;
-            _workerRepository = workerRepository;
             _userRepository = userRepository;
         }
 
@@ -223,6 +221,45 @@ namespace API.Controllers
             if (account != null) return Ok(account);
 
             return BadRequest("Account does not exists");
+        }
+        [HttpGet("send_otp")]
+        [Authorize(Roles = "user, worker, admin")]
+        public async Task<ActionResult> SendOtp()
+        {
+            var accountId = Int32.Parse(User.FindFirst("userId")?.Value);
+            var user = await _userRepository.GetUserByIdAsync(accountId);
+            if (user == null)
+            {
+                return BadRequest("The user is not exist!");
+            }
+            SendAndRetrieveRandomOtpCode sendAndRetrieveRandomOtpCode = new SendAndRetrieveRandomOtpCode();
+            string otpCode = sendAndRetrieveRandomOtpCode.GenerateRandomOtpCode();
+            sendAndRetrieveRandomOtpCode.StoreOtpCodeForUser(accountId, otpCode);
+            string path = @"D:\FPT\SWP\SWP_Back_End\API\MailContent\SendOtpCode.html";
+            string html = ReadFileHelper.ReadFile(path).Replace("[OTP_CODE]", otpCode);
+            var mailContent = new MailContent()
+            {
+                Subject = "Otp Code",
+                Body = html,
+                To = user.Email
+            };
+            // send mail
+            await _sendMailService.SendMailAsync(mailContent);
+            // get otp code 
+            _storeOtpCode = sendAndRetrieveRandomOtpCode.GetStoredOtpCodeForUser(accountId);
+            return Ok();
+        }
+
+        [HttpPost("check_otp")]
+        [Authorize(Roles = "user, worker, admin")]
+        public ActionResult CheckOtp([FromBody] JsonElement body)
+        {
+            string _otpCode = JsonSerializer.Serialize(body);
+            if (_storeOtpCode == _otpCode)
+            {
+                return Ok();
+            }
+            return BadRequest("Incorrect Otp Code");
         }
     }
 }
