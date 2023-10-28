@@ -83,5 +83,23 @@ namespace API.Data
             return await _context.Users.AnyAsync(u => u.Email.ToLower() == Email.ToLower() || u.Phone == Phone);
         }
 
+        public async Task<User> GetUserEntityByEmailAsync(string userEmail, bool includeWorker = false)
+        {
+            var query = _context.Users
+            .Where(u => u.Email == userEmail);
+            if (includeWorker)
+            {
+                query = query.Include(x => x.Worker);
+            }
+            return await query.SingleOrDefaultAsync();
+        }
+
+        public async Task<UserDto> GetUserByEmailAsync(string userEmail)
+        {
+            return await _context.Users
+            .Where(u => u.Email == userEmail)
+            .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
+            .SingleOrDefaultAsync();
+        }
     }
 }

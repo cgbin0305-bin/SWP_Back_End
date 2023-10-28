@@ -222,19 +222,17 @@ namespace API.Controllers
 
             return BadRequest("Account does not exists");
         }
-        [HttpGet("send_otp")]
-        [Authorize(Roles = "user, worker, admin")]
-        public async Task<ActionResult> SendOtp()
+        [HttpPost("send_otp")]
+        public async Task<ActionResult> SendOtp([FromForm] string userEmail)
         {
-            var accountId = Int32.Parse(User.FindFirst("userId")?.Value);
-            var user = await _userRepository.GetUserByIdAsync(accountId);
+            var user = await _userRepository.GetUserByEmailAsync(userEmail);
             if (user == null)
             {
                 return BadRequest("The user is not exist!");
             }
             SendAndRetrieveRandomOtpCode sendAndRetrieveRandomOtpCode = new SendAndRetrieveRandomOtpCode();
             string otpCode = sendAndRetrieveRandomOtpCode.GenerateRandomOtpCode();
-            sendAndRetrieveRandomOtpCode.StoreOtpCodeForUser(accountId, otpCode);
+            sendAndRetrieveRandomOtpCode.StoreOtpCodeForUser(userEmail, otpCode);
             string path = @"D:\FPT\SWP\SWP_Back_End\API\MailContent\SendOtpCode.html";
             string html = ReadFileHelper.ReadFile(path).Replace("[OTP_CODE]", otpCode);
             var mailContent = new MailContent()
@@ -246,20 +244,38 @@ namespace API.Controllers
             // send mail
             await _sendMailService.SendMailAsync(mailContent);
             // get otp code 
-            _storeOtpCode = sendAndRetrieveRandomOtpCode.GetStoredOtpCodeForUser(accountId);
+            _storeOtpCode = sendAndRetrieveRandomOtpCode.GetStoredOtpCodeForUser(userEmail);
             return Ok();
         }
 
-        [HttpPost("check_otp")]
-        [Authorize(Roles = "user, worker, admin")]
-        public ActionResult CheckOtp([FromBody] JsonElement body)
+        [HttpPost("change_password")]
+        public async Task<ActionResult> CheckOtp([FromBody] ForgotPasswordDto forgotPasswordDto)
         {
-            string _otpCode = JsonSerializer.Serialize(body);
-            if (_storeOtpCode == _otpCode)
+            // check otp_code
+            if (_storeOtpCode != forgotPasswordDto.OtpCode)
             {
-                return Ok();
+                return BadRequest("Incorrect Otp Code");
             }
-            return BadRequest("Incorrect Otp Code");
+            // get user by email
+            var user = await _userRepository.GetUserEntityByEmailAsync(forgotPasswordDto.Email);
+            //check new password if it duplicate with old password
+            // using var hmac = new HMACSHA512(user.PasswordSalt);
+            // var computeHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(forgotPasswordDto.NewPassword));
+            // for (int i = 0; i < computeHash.Length; i++)
+            // {
+            // if (computeHash[i] != user.PasswordHash[i])
+            // {
+            // update password
+            var Password = forgotPasswordDto.NewPassword.GetPasswordHash();
+            user.PasswordHash = Password.Item1;
+            user.PasswordSalt = Password.Item2;
+            if (await _userRepository.SaveChangeAsync()) return NoContent();
+            return BadRequest("Fail to update password");
+            // }
+            // continue;
+            // }
+            // return BadRequest("The new password must not be the same as the old password");
+            // }
         }
     }
 }

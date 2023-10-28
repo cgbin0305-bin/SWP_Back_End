@@ -4,7 +4,7 @@ namespace API.Helper
 {
     public class SendAndRetrieveRandomOtpCode
     {
-        public Dictionary<int, string> otpCodeDictionary = new Dictionary<int, string>();
+        public Dictionary<string, string> otpCodeDictionary = new Dictionary<string, string>();
 
         public string GenerateRandomOtpCode()
         {
@@ -14,18 +14,18 @@ namespace API.Helper
             return otp.ToString();
         }
 
-        public void StoreOtpCodeForUser(int userId, string otpCode)
+        public void StoreOtpCodeForUser(string userEmail, string otpCode)
         {
             // Store the OTP code in a dictionary with the user's ID as the key
-            otpCodeDictionary[userId] = otpCode;
+            otpCodeDictionary[userEmail] = otpCode;
         }
 
-        public string GetStoredOtpCodeForUser(int userId)
+        public string GetStoredOtpCodeForUser(string userEmail)
         {
             // Retrieve the OTP code from the dictionary based on the user's ID
-            if (otpCodeDictionary.ContainsKey(userId))
+            if (otpCodeDictionary.ContainsKey(userEmail))
             {
-                return otpCodeDictionary[userId];
+                return otpCodeDictionary[userEmail];
             }
 
             // Return null or an empty string if the user's OTP code is not found

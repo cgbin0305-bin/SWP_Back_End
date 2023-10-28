@@ -7,7 +7,8 @@ namespace API.Interfaces
     public interface IUserRepository
     {
         Task<UserDto> GetUserByIdAsync(int userId);
-
+        Task<User> GetUserEntityByEmailAsync(string userEmail, bool includeWorker = false);
+        Task<UserDto> GetUserByEmailAsync(string userEmail);
         Task<IEnumerable<UserDto>> GetAllUsersAsync();
 
         Task<IEnumerable<UserDto>> SearchUserAsync(string keyword);
