@@ -247,7 +247,7 @@ namespace API.Controllers
             _storeOtpCode = sendAndRetrieveRandomOtpCode.GetStoredOtpCodeForUser(userEmail);
             return Ok();
         }
-        [HttpPost("change_password")]
+        [HttpPost("forgot_password")]
         public async Task<ActionResult> CheckOtp([FromBody] ForgotPasswordDto forgotPasswordDto)
         {
             // check otp_code
@@ -275,6 +275,29 @@ namespace API.Controllers
             // }
             // return BadRequest("The new password must not be the same as the old password");
             // }
+        }
+
+        [HttpPost("change_password")]
+        [Authorize(Roles = "user, worker, admin")]
+        public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            var accountId = int.Parse(User.FindFirst("userId")?.Value);
+            var user = await _userRepository.GetUserEntityByIdAsync(accountId);
+            if (user is null)
+            {
+                return BadRequest("User is not existed");
+            }
+            using var hmac = new HMACSHA512(user.PasswordSalt);
+            var computeHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(changePasswordDto.OldPassword));
+            for (int i = 0; i < computeHash.Length; i++)
+            {
+                if (computeHash[i] != user.PasswordHash[i]) return BadRequest("Invalid old password");
+            }
+            var passwordHash = changePasswordDto.NewPassword.GetPasswordHash();
+            user.PasswordHash = passwordHash.Item1;
+            user.PasswordSalt = passwordHash.Item2;
+            if (await _userRepository.SaveChangeAsync()) return Ok();
+            return BadRequest("Fail to change password");
         }
     }
 }
