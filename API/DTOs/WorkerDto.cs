@@ -12,6 +12,8 @@ public class WorkerDto
 
     public string Address { get; set; }
 
+    public string PhotoUrl { get; set; }
+
     public int CountOrder { set; get; }
 
     public int AverageRate { set; get; }
