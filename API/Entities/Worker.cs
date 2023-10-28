@@ -15,6 +15,10 @@ namespace API.Entities
 
         public bool Status { get; set; } = false;
 
+        public string PhotoUrl { get; set; }
+
+        public string PublicId { get; set; }
+
         public List<OrderHistory> OrderHistories { set; get; }
 
         public List<Workers_Chores> Workers_Chores { set; get; }

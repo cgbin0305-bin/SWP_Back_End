@@ -5,7 +5,7 @@ namespace API.DTOs
     public class WorkerRegisterDto
     {
         [Required]
-        public List<int> choresList { get; set; }
+        public List<int> ChoresList { get; set; }
 
         public decimal Fee { get; set; } = 25000;
     }

@@ -18,12 +18,14 @@ namespace API.Controllers
     private readonly IWorkerRepository _workerRepository;
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
+    private readonly IPhotoService _photoService;
 
-    public WorkersController(IWorkerRepository workerRepository, IMapper mapper, IUserRepository userRepository)
+    public WorkersController(IWorkerRepository workerRepository, IMapper mapper, IUserRepository userRepository, IPhotoService photoService)
     {
       _workerRepository = workerRepository;
       _mapper = mapper;
       _userRepository = userRepository;
+      _photoService = photoService;
     }
 
     [HttpGet("{id}")]
@@ -169,13 +171,33 @@ namespace API.Controllers
       return Ok(result);
     }
 
-    // [HttpPut("update")]
-    // [Authorize(Roles = "worker")]
-    // public async Task<ActionResult> UpdateWorkerInfoByWorker(WorkerUpdateDto workerUpdateDto)
-    // {
-    //   // code here
-    // }
+    [HttpPost("upload-photo")]
+    [Authorize(Roles = "worker, user")]
+    public async Task<ActionResult<WorkerDto>> UploadPhotoForWorker(IFormFile file)
+    {
+      var userId = User.FindFirst("userId")?.Value;
+      var worker = await _workerRepository.GetWorkerEntityByIdAsync(int.Parse(userId));
 
+      if (worker is null) return NotFound();
 
+      if (worker.PhotoUrl != null)
+      {
+        var deletionResult = await _photoService.DeletePhotoAsync(worker.PublicId);
+        if (deletionResult.Error != null) return BadRequest(deletionResult.Error.Message);
+      }
+
+      var result = await _photoService.AddPhotoAsync(file);
+
+      if (result.Error != null) return BadRequest(result.Error.Message);
+
+      worker.PhotoUrl = result.SecureUrl.AbsoluteUri;
+      worker.PublicId = result.PublicId;
+
+      if(await _workerRepository.SaveAllAsync()) {
+        return Ok("Upload a photo successfully");
+      }
+
+      return BadRequest("Problem uploading photo");
+    }
   }
 }

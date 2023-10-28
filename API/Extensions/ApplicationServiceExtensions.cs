@@ -30,6 +30,7 @@ public static class ApplicationServiceExtensions
         services.AddTransient<ISendMailService, SendMailService>();
         // add the IOption CloudinarySettings base on which being setup in appsettings.json
         services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
+        services.AddScoped<IPhotoService, PhotoService>();
         return services;
     }
 }

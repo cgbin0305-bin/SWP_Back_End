@@ -158,14 +158,14 @@ namespace API.Controllers
 
         [HttpPost("user/add")]
         [Authorize(Roles = "user")]
-        public async Task<ActionResult<WorkerDto>> UpdateUserToWorker([FromBody] WorkerRegisterDto dto)
+        public async Task<ActionResult<string>> UpdateUserToWorker([FromBody] WorkerRegisterDto dto) //[FromBody] WorkerRegisterDto dto
         {
             var userId = int.Parse(User.FindFirst("userId")?.Value);
             var user = await _userRepository.GetUserEntityByIdAsync(userId, includeWorker: true);
 
             if (user is null) return NotFound();
 
-            var list = dto.choresList.Select(chore =>
+            var list = dto.ChoresList.Select(chore =>
             {
                 return new Workers_Chores { WorkerId = userId, ChoreId = chore };
             }).ToList();
@@ -184,7 +184,6 @@ namespace API.Controllers
 
             return BadRequest("Fail To User Sign Up To Be a Worker");
         }
-
 
         [HttpPut("update")]
         [Authorize(Roles = "user, worker")]
@@ -210,6 +209,7 @@ namespace API.Controllers
             if (await _userRepository.SaveChangeAsync()) return NoContent();
             return BadRequest("Fail to update account information");
         }
+
         [HttpGet("get_account")]
         [Authorize(Roles = "user, worker, admin")]
         public async Task<ActionResult<UserDto>> GetAccountOfUser()
@@ -222,11 +222,12 @@ namespace API.Controllers
 
             return BadRequest("Account does not exists");
         }
+
         [HttpGet("send_otp")]
         [Authorize(Roles = "user, worker, admin")]
         public async Task<ActionResult> SendOtp()
         {
-            var accountId = Int32.Parse(User.FindFirst("userId")?.Value);
+            var accountId = int.Parse(User.FindFirst("userId")?.Value);
             var user = await _userRepository.GetUserByIdAsync(accountId);
             if (user == null)
             {
