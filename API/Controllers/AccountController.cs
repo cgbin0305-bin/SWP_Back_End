@@ -223,9 +223,12 @@ namespace API.Controllers
             return BadRequest("Account does not exists");
         }
         [HttpPost("send_otp")]
-        public async Task<ActionResult> SendOtp([FromForm] string userEmail)
+        public async Task<ActionResult> SendOtp([FromBody] JsonElement body)
         {
-            var user = await _userRepository.GetUserByEmailAsync(userEmail);
+            var userEmail = JsonSerializer.Serialize(body);
+            userEmail = userEmail.Substring(1, userEmail.Length - 2);
+            System.Console.WriteLine(userEmail);
+            var user = await _userRepository.GetUserEntityByEmailAsync(userEmail);
             if (user == null)
             {
                 return BadRequest("The user is not exist!");
