@@ -44,7 +44,7 @@ namespace API.Controllers
             // add User to DB
             if (await _userRepository.AddUserAsync(user))
             {
-                string path = @"D:\FPT\SWP\SWP_Back_End\API\MailContent\RegisterSuccessfull.html";
+                string path = @"API\MailContent\RegisterSuccessfull.html";
                 // set up to send mail 
                 var mailContent = new MailContent()
                 {
@@ -236,7 +236,7 @@ namespace API.Controllers
             SendAndRetrieveRandomOtpCode sendAndRetrieveRandomOtpCode = new SendAndRetrieveRandomOtpCode();
             string otpCode = sendAndRetrieveRandomOtpCode.GenerateRandomOtpCode();
             sendAndRetrieveRandomOtpCode.StoreOtpCodeForUser(userEmail, otpCode);
-            string path = @"D:\FPT\SWP\SWP_Back_End\API\MailContent\SendOtpCode.html";
+            string path = @"API\MailContent\SendOtpCode.html";
             string html = ReadFileHelper.ReadFile(path).Replace("[OTP_CODE]", otpCode);
             var mailContent = new MailContent()
             {
