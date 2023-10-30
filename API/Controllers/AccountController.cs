@@ -165,6 +165,8 @@ namespace API.Controllers
 
             if (user is null) return NotFound();
 
+            if(user.Worker != null) return BadRequest("You are already a worker");
+
             var list = dto.ChoresList.Select(chore =>
             {
                 return new Workers_Chores { WorkerId = userId, ChoreId = chore };

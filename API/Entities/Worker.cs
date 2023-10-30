@@ -15,9 +15,9 @@ namespace API.Entities
 
         public bool Status { get; set; } = false;
 
-        public string PhotoUrl { get; set; }
+        public string PhotoUrl { get; set; } = "";
 
-        public string PublicId { get; set; }
+        public string PublicId { get; set; } = "";
 
         public List<OrderHistory> OrderHistories { set; get; }
 
