@@ -11,5 +11,7 @@ namespace API.Interfaces
         Task<IEnumerable<OrderHistoryDto>> SearchOrderHistoriesAsync(string keyword);
 
         Task<IEnumerable<OrderHistoryOfUserDto>> GetOrderHistoriesByEmailAsync(string email, string phone);
+
+        Task<OrderHistory> GetOrderHistoryAsync(int OrderId);
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using AutoMapper;
 using API.Entities;
+using Microsoft.VisualBasic;
 
 
 namespace API.Controllers
@@ -92,6 +93,33 @@ namespace API.Controllers
             return BadRequest("Problem hiring the worker");
         }
 
-    }
+        [HttpPost("review")]
+        public async Task<ActionResult> PostReviewForWorker(ReviewOfUserDto reviewOfUserDto) {
+            var userId = User.FindFirst("userId")?.Value;
+            if(!string.IsNullOrEmpty(userId)) {
+                var user = await _userRepository.GetUserEntityByIdAsync(int.Parse(userId));
+                reviewOfUserDto.Email = user.Email;
+            }
 
+            var orderHistory = await _orderHistoryRepository.GetOrderHistoryAsync(reviewOfUserDto.OrderId);
+
+            if(orderHistory is null) return NotFound();
+
+            if(orderHistory.GuestEmail != reviewOfUserDto.Email) return BadRequest("You can not review this because you are not the one booking the service.");
+
+            var newReview = new Review{
+                Id = orderHistory.Id,
+                Content = reviewOfUserDto.ReviewContent,
+                Rate = reviewOfUserDto.Rate > 5 || reviewOfUserDto.Rate < 0 ? 0: reviewOfUserDto.Rate,
+                Date = DateTime.UtcNow
+            };
+
+            orderHistory.Review = newReview;
+
+            if(await _userRepository.SaveChangeAsync()) return Ok();
+
+            return BadRequest("Problem sending a review");
+            
+        }
+    }
 }

@@ -20,6 +20,12 @@ namespace API.Data
             _mapper = mapper;
         }
 
+        public async Task<OrderHistory> GetOrderHistoryAsync(int OrderId) {
+        return await _context.OrderHistories
+            .Where(x => x.Id == OrderId)
+            .SingleOrDefaultAsync();
+        }
+
         public async Task<IEnumerable<OrderHistoryDto>> GetAllOrderHistoriesAsync()
         {
             return await _context.OrderHistories
