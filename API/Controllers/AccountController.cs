@@ -10,6 +10,7 @@ using API.Helper;
 using AutoMapper;
 using Errors;
 using System.Text.Json;
+using CloudinaryDotNet.Actions;
 namespace API.Controllers
 {
     public class AccountController : BaseApiController
@@ -19,14 +20,16 @@ namespace API.Controllers
         private readonly ISendMailService _sendMailService;
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
+        private readonly IOrderHistoryRepository _orderHistoryRepository;
         public static string _storeOtpCode;
 
-        public AccountController(IUserRepository userRepository, ITokenService tokenService, ISendMailService sendMailService, IMapper mapper)
+        public AccountController(IUserRepository userRepository, IOrderHistoryRepository orderHistoryRepository, ITokenService tokenService, ISendMailService sendMailService, IMapper mapper)
         {
             _tokenService = tokenService;
             _sendMailService = sendMailService;
             _mapper = mapper;
             _userRepository = userRepository;
+            _orderHistoryRepository = orderHistoryRepository;
         }
 
         [HttpPost("register")]
@@ -158,14 +161,14 @@ namespace API.Controllers
 
         [HttpPost("user/add")]
         [Authorize(Roles = "user")]
-        public async Task<ActionResult<string>> UpdateUserToWorker([FromBody] WorkerRegisterDto dto) //[FromBody] WorkerRegisterDto dto
+        public async Task<ActionResult> UpdateUserToWorker([FromBody] WorkerRegisterDto dto) //[FromBody] WorkerRegisterDto dto
         {
             var userId = int.Parse(User.FindFirst("userId")?.Value);
             var user = await _userRepository.GetUserEntityByIdAsync(userId, includeWorker: true);
 
             if (user is null) return NotFound();
 
-            if(user.Worker != null) return BadRequest("You are already a worker");
+            if (user.Worker != null) return BadRequest("You are already a worker");
 
             var list = dto.ChoresList.Select(chore =>
             {
@@ -303,6 +306,23 @@ namespace API.Controllers
             user.PasswordSalt = passwordHash.Item2;
             if (await _userRepository.SaveChangeAsync()) return Ok();
             return BadRequest("Fail to change password");
+        }
+
+
+        [HttpGet("orderhistories")]
+        [Authorize(Roles = "user")]
+        public async Task<ActionResult<IEnumerable<OrderHistoryOfUserDto>>> GetOrderHistoriesOfUser()
+        {
+            var accountId = int.Parse(User.FindFirst("userId")?.Value);
+            var user = await _userRepository.GetUserEntityByIdAsync(accountId);
+
+            if(user is null) return NotFound();
+
+            var orderhistories = await _orderHistoryRepository.GetOrderHistoriesByEmailAsync(user.Email, user.Phone);
+
+            if(orderhistories is null && orderhistories.Count() ==0) return BadRequest("This user has never booking");
+
+            return Ok(orderhistories);
         }
     }
 }

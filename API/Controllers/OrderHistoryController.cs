@@ -90,8 +90,8 @@ namespace API.Controllers
             }
 
             return BadRequest("Problem hiring the worker");
-
         }
+
     }
 
 }

@@ -59,5 +59,8 @@ public class AutoMapperProfiles : Profile
         CreateMap<OrderHistory, OrderHistoryOfWorkerDto>()
             .ForMember(dest => dest.Review, opt => opt.MapFrom(src => src.Review))
             .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => src.Review != null ? src.Review.Rate : 0));
+        CreateMap<OrderHistory, OrderHistoryOfUserDto>()
+            .ForMember(dest => dest.Review, opt => opt.MapFrom(src => src.Review))
+            .ForMember(dest => dest.WorkerName, opt => opt.MapFrom(src => src.Worker.User.Name));
     }
 }

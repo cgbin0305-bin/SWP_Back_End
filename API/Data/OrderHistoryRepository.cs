@@ -40,5 +40,12 @@ namespace API.Data
             || x.GuestPhone.Contains(keyword)
             || x.WorkerName.ToLower().Contains(keyword));
         }
+
+        public async Task<IEnumerable<OrderHistoryOfUserDto>> GetOrderHistoriesByEmailAsync(string email, string phone) {
+            return await _context.OrderHistories
+            .Where(x => x.GuestEmail == email && x.GuestPhone == phone)
+            .ProjectTo<OrderHistoryOfUserDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
+        }
     }
 }
