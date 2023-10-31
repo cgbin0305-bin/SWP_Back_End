@@ -8,7 +8,7 @@ public class WorkerDto
 
     public string Name { get; set; }
 
-    public bool Status {get; set;}
+    public bool Status { get; set; }
 
     public string Address { get; set; }
 
@@ -17,10 +17,10 @@ public class WorkerDto
     public int CountOrder { set; get; }
 
     public int AverageRate { set; get; }
-
+    public string WorkingState { get; set; }
     public List<ReviewDto> Reviews { set; get; }
 
-    public IEnumerable<HouseHoldChoresDto> Chores {set; get;}
+    public IEnumerable<HouseHoldChoresDto> Chores { set; get; }
 
     public Guid Version { get; set; }
 }

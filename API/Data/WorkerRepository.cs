@@ -23,7 +23,7 @@ public class WorkerRepository : IWorkerRepository
     public async Task<IEnumerable<WorkerDto>> GetAllWorkersAsync(string address)
     {
 
-        var query = _context.Workers.Include(x => x.User).Where(x => x.Status);
+        var query = _context.Workers.Include(x => x.User).Where(x => x.Status && x.WorkingState == "free");
 
         if (!string.IsNullOrEmpty(address))
         {
@@ -46,7 +46,7 @@ public class WorkerRepository : IWorkerRepository
     public async Task<WorkerDto> GetWorkerByIdAsync(int id)
     {
         return await _context.Workers
-            .Where(x => x.Id == id && x.Status)
+            .Where(x => x.Id == id && x.Status && x.WorkingState == "free")
             .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
             .AsSplitQuery()
             .SingleOrDefaultAsync();
@@ -100,7 +100,7 @@ public class WorkerRepository : IWorkerRepository
 
     public async Task<IEnumerable<WorkerDto>> SearchWorkersAsync(string keyword)
     {
-        return await SearchQueryWorker(keyword).Where(x => x.Status)
+        return await SearchQueryWorker(keyword).Where(x => x.Status && x.WorkingState == "free")
         .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
         .ToListAsync();
     }
