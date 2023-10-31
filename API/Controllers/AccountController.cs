@@ -47,12 +47,15 @@ namespace API.Controllers
             // add User to DB
             if (await _userRepository.AddUserAsync(user))
             {
-                string path = @"MailContent\RegisterSuccessfull.html";
+                string path = @"MailContent\RegisterSuccessful.html";
                 // set up to send mail 
+                string bodyContent = ReadFileHelper.ReadFile(path);
+                bodyContent = bodyContent.Replace("[User's Name]", registerDto.Name);
+                bodyContent = bodyContent.Replace("[User's Email]", registerDto.Email);
                 var mailContent = new MailContent()
                 {
-                    Subject = "Dang ky tai khoan thanh cong",
-                    Body = ReadFileHelper.ReadFile(path),
+                    Subject = "Register Successful",
+                    Body = bodyContent,
                     To = registerDto.Email
                 };
                 // send mail
@@ -316,11 +319,11 @@ namespace API.Controllers
             var accountId = int.Parse(User.FindFirst("userId")?.Value);
             var user = await _userRepository.GetUserEntityByIdAsync(accountId);
 
-            if(user is null) return NotFound();
+            if (user is null) return NotFound();
 
             var orderhistories = await _orderHistoryRepository.GetOrderHistoriesByEmailAsync(user.Email, user.Phone);
 
-            if(orderhistories is null && orderhistories.Count() ==0) return BadRequest("This user has never booking");
+            if (orderhistories is null && orderhistories.Count() == 0) return BadRequest("This user has never booking");
 
             return Ok(orderhistories);
         }
