@@ -18,6 +18,7 @@ namespace API.Entities
         public string PhotoUrl { get; set; } = "";
 
         public string PublicId { get; set; } = "";
+        public string WorkingState { get; set; } = "free"; // (free,working,off)
 
         public List<OrderHistory> OrderHistories { set; get; }
 

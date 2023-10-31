@@ -88,6 +88,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 1,
@@ -109,6 +110,7 @@
           "GuestPhone": "9874563210",
           "GuestAddress": "123 Main St",
           "Date": "2023-09-10",
+          "Status": "finished",
           "Review": {
             "Content": "Hoi ngang suong, kho qua z, tra loi ko duoc",
             "Date": "2023-09-10",
@@ -122,6 +124,7 @@
           "GuestPhone": "0384251380",
           "GuestAddress": "Quan Binh Thanh, Thanh Pho Ho Chi Minh",
           "Date": "2023-09-11",
+          "Status": "finished",
           "Review": {
             "Content": "Don dep sach se, gon gang. Lan sau lai ung ho dich vu tiep",
             "Date": "2023-09-11",
@@ -135,6 +138,7 @@
           "GuestPhone": "0909142731",
           "GuestAddress": "Quan 2, Thanh Pho Ho Chi Minh",
           "Date": "2023-09-12",
+          "Status": "finished",
           "Review": {
             "Content": "Tam on, can khac phuc o khau don ve sinh nha tam",
             "Date": "2023-09-13",
@@ -148,6 +152,7 @@
           "GuestPhone": "08620314578",
           "GuestAddress": "Quan 6, Thanh Pho Ho Chi Minh",
           "Date": "2023-09-13",
+          "Status": "finished",
           "Review": {
             "Content": "Qua okela, rat thich ban nam don ve sinh nay, sau se ung ho zai dep",
             "Date": "2023-09-13",
@@ -161,6 +166,7 @@
           "GuestPhone": "02832145746",
           "GuestAddress": "Quan 6, Thanh Pho Ho Chi Minh",
           "Date": "2023-09-13",
+          "Status": "finished",
           "Review": {
             "Content": "Cat co tot lam, ui do con hoi nhan xiu, phat huy lan sau",
             "Date": "2023-09-13",
@@ -174,6 +180,7 @@
           "GuestPhone": "1247503256898",
           "GuestAddress": "Quan 9, Thanh Pho Ho Chi Minh",
           "Date": "2023-09-14",
+          "Status": "finished",
           "Version": "00000000-0000-0000-0000-000000000000"
         }
       ]
@@ -189,6 +196,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 3,
@@ -215,6 +223,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 3,
@@ -245,6 +254,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 1,
@@ -271,6 +281,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 2,
@@ -297,6 +308,8 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 3,
@@ -331,6 +344,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 1,
@@ -357,6 +371,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 3,
@@ -387,6 +402,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 3,
@@ -413,6 +429,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 2,
@@ -439,6 +456,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 1,
@@ -465,6 +483,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 3,
@@ -499,6 +518,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 3,
@@ -525,6 +545,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 1,
@@ -551,6 +572,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 1,
@@ -577,6 +599,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 3,
@@ -607,6 +630,7 @@
     "Worker": {
       "Fee": 25000,
       "Status": true,
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 3,
