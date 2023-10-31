@@ -7,6 +7,7 @@ public class OrderHistoryOfWorkerDto
     public int Id { set; get; }
     public string GuestEmail { get; set; }
     public string Date { set; get; }
+    public string Status { get; set; }
     public int Rate { set; get; }
     public string GuestName { set; get; }
     public string GuestPhone { set; get; }

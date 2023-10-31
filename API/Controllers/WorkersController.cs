@@ -1,15 +1,11 @@
-using System.Runtime.InteropServices.ComTypes;
-using System.Net;
-using API.Data;
 using API.DTOs;
 using API.Helper;
 using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
-using API.Entities;
-using Microsoft.VisualBasic;
 using DTOs;
+using Org.BouncyCastle.Asn1.Esf;
 
 namespace API.Controllers
 {
@@ -19,13 +15,15 @@ namespace API.Controllers
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
     private readonly IPhotoService _photoService;
+    private readonly IOrderHistoryRepository _orderHistoryRepository;
 
-    public WorkersController(IWorkerRepository workerRepository, IMapper mapper, IUserRepository userRepository, IPhotoService photoService)
+    public WorkersController(IWorkerRepository workerRepository, IMapper mapper, IUserRepository userRepository, IPhotoService photoService, IOrderHistoryRepository orderHistoryRepository)
     {
       _workerRepository = workerRepository;
       _mapper = mapper;
       _userRepository = userRepository;
       _photoService = photoService;
+      _orderHistoryRepository = orderHistoryRepository;
     }
 
     [HttpGet("{id}")]
@@ -193,11 +191,52 @@ namespace API.Controllers
       worker.PhotoUrl = result.SecureUrl.AbsoluteUri;
       worker.PublicId = result.PublicId;
 
-      if(await _workerRepository.SaveAllAsync()) {
+      if (await _workerRepository.SaveAllAsync())
+      {
         return Ok("Upload a photo successfully");
       }
 
       return BadRequest("Problem uploading photo");
+    }
+
+    [HttpPut("order/{orderId}")]
+    [Authorize(Roles = "worker")]
+    public async Task<ActionResult> ApproachOrFinishOrderOfWorker(int orderId)
+    {
+      var userId = User.FindFirst("userId")?.Value;
+      var worker = await _workerRepository.GetWorkerEntityByIdAsync(int.Parse(userId));
+
+      if (worker is null) return NotFound();
+
+      var orderOfWorker = await _orderHistoryRepository.GetOrderHistoryAsync(orderId);
+      if (orderOfWorker is null) return NotFound();
+
+      if(orderOfWorker.WorkerId != worker.Id) return BadRequest("You are not a worker to serve this order");
+
+      if (orderOfWorker.Status.Equals("finished"))
+      {
+        return BadRequest("This order is already finished.");
+      }
+      else if (orderOfWorker.Status.Equals("pending") && worker.WorkingState.Equals("working"))
+      {
+        orderOfWorker.Status = "inprogress";
+        if (await _workerRepository.SaveAllAsync()) return Ok("The worker approaches booking successfully");
+        return BadRequest("Problem approaching the booking");
+      }
+      else if (orderOfWorker.Status.Equals("inprogress") && worker.WorkingState.Equals("working"))
+      {
+        orderOfWorker.Status = "finished";
+        worker.WorkingState = "free";
+        if (await _workerRepository.SaveAllAsync()) {
+          // Send Mail for user when finish the order
+          return Ok("The worker finishes booking successfully");
+        }
+        return BadRequest("Problem finishing the booking");
+      }
+      else
+      {
+        return BadRequest("You need to check your Working State");
+      }
     }
   }
 }
