@@ -39,16 +39,20 @@ namespace API.Data
 
         public async Task<IEnumerable<OrderHistoryDto>> SearchOrderHistoriesAsync(string keyword)
         {
-            var OrderHistories = await _context.OrderHistories
-                .ProjectTo<OrderHistoryDto>(_mapper.ConfigurationProvider)
-                .AsQueryable()
-                .ToListAsync();
+            var query = _context.OrderHistories
+                .Include(x => x.Worker)
+                    .ThenInclude(x => x.User)
+                .Include(x => x.Review)
+                .AsQueryable();
 
-            return OrderHistories.Where(x => x.GuestName.ToLower().Contains(keyword)
+            query = query.Where(x => x.GuestName.ToLower().Contains(keyword)
             || x.GuestEmail.ToLower().Contains(keyword)
             || x.GuestAddress.ToLower().Contains(keyword)
             || x.GuestPhone.Contains(keyword)
-            || x.WorkerName.ToLower().Contains(keyword));
+            || x.Worker.User.Name.ToLower().Contains(keyword)
+            || x.Status.Contains(keyword));
+
+            return await query.ProjectTo<OrderHistoryDto>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
         public async Task<IEnumerable<OrderHistoryOfUserDto>> GetOrderHistoriesByEmailAsync(string email, string phone)

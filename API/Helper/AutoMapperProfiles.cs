@@ -23,7 +23,8 @@ public class AutoMapperProfiles : Profile
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => string.Format("{0:yyyy-MM-dd}", src.Date)))
             .ForMember(dest => dest.WorkerId, opt => opt.MapFrom(src => src.Worker.Id))
             .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => src.Review != null ? src.Review.Rate : 0))
-            .ForMember(dest => dest.WorkerName, opt => opt.MapFrom(src => src.Worker.User.Name));
+            .ForMember(dest => dest.WorkerName, opt => opt.MapFrom(src => src.Worker.User.Name))
+            .ForMember(dest => dest.ReviewContent, opt => opt.MapFrom(src => src.Review != null? src.Review.Content : ""));
         CreateMap<User, UserDto>();
         CreateMap<Review, ReviewDto>()
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => string.Format("{0:yyyy-MM-dd}", src.Date)))

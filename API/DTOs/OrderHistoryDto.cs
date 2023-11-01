@@ -10,6 +10,7 @@ public class OrderHistoryDto
         public string GuestPhone { set; get; }
         public string GuestAddress { set; get; }
         public int WorkerId { get; set; }
-
         public string WorkerName { get; set; }
+        public string ReviewContent { get; set; }
+        public string Status { get; set; }
 }
