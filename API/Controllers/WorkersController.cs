@@ -282,19 +282,19 @@ namespace API.Controllers
         worker.OrderHistories.Remove(orderOfWorker);
         if (await _workerRepository.SaveAllAsync())
         {
-          // // Send Mail for user when finish the order
-          // string path = @"MailContent\Review.html";
-          // // set up to send mail 
-          // string bodyContent = ReadFileHelper.ReadFile(path);
-          // bodyContent = bodyContent.Replace("GuestName", orderOfWorker.GuestName);
-          // var mailContent = new MailContent()
-          // {
-          //   Subject = "Tell Us How We Did - Leave a Review",
-          //   Body = bodyContent,
-          //   To = orderOfWorker.GuestEmail
-          // };
+          // Send Mail for user when the worker reject the order
+          string path = @"MailContent\RejectMail.html";
+          // set up to send mail 
+          string bodyContent = ReadFileHelper.ReadFile(path);
+          bodyContent = bodyContent.Replace("GuestUser", orderOfWorker.GuestName);
+          var mailContent = new MailContent()
+          {
+            Subject = "Order Rejected: Worker Unavailable",
+            Body = bodyContent,
+            To = orderOfWorker.GuestEmail
+          };
           // send mail
-          // await _sendMailService.SendMailAsync(mailContent);
+          await _sendMailService.SendMailAsync(mailContent);
           return Ok("The worker reject booking successfully");
         }
         return BadRequest("Problem finishing the booking");
@@ -327,7 +327,7 @@ namespace API.Controllers
       }
 
       if (await _workerRepository.SaveAllAsync()) return Ok();
-        return BadRequest("Problem switching state");
+      return BadRequest("Problem switching state");
     }
   }
 }
