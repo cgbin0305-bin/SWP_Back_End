@@ -254,5 +254,80 @@ namespace API.Controllers
         return BadRequest("You need to check your Working State");
       }
     }
+
+    [HttpPut("cancel-order/{orderId}")]
+    [Authorize(Roles = "worker")]
+    public async Task<ActionResult> CancelOrderOfWorker(int orderId)
+    {
+      var userId = User.FindFirst("userId")?.Value;
+      var worker = await _workerRepository.GetWorkerEntityByIdAsync(int.Parse(userId), includeOrderHistories: true);
+
+      if (worker is null) return NotFound();
+
+      var orderOfWorker = await _orderHistoryRepository.GetOrderHistoryAsync(orderId);
+      if (orderOfWorker is null) return NotFound();
+
+      if (orderOfWorker.WorkerId != worker.Id) return BadRequest("You are not a worker to serve this order");
+
+      if (orderOfWorker.Status.Equals("finished"))
+      {
+        return BadRequest("This order is already finished.");
+      }
+      else if (orderOfWorker.Status.Equals("inprogress") && worker.WorkingState.Equals("working"))
+      {
+        return BadRequest("This order is progressing");
+      }
+      else if (orderOfWorker.Status.Equals("pending") && worker.WorkingState.Equals("working"))
+      {
+        worker.OrderHistories.Remove(orderOfWorker);
+        if (await _workerRepository.SaveAllAsync())
+        {
+          // // Send Mail for user when finish the order
+          // string path = @"MailContent\Review.html";
+          // // set up to send mail 
+          // string bodyContent = ReadFileHelper.ReadFile(path);
+          // bodyContent = bodyContent.Replace("GuestName", orderOfWorker.GuestName);
+          // var mailContent = new MailContent()
+          // {
+          //   Subject = "Tell Us How We Did - Leave a Review",
+          //   Body = bodyContent,
+          //   To = orderOfWorker.GuestEmail
+          // };
+          // send mail
+          // await _sendMailService.SendMailAsync(mailContent);
+          return Ok("The worker reject booking successfully");
+        }
+        return BadRequest("Problem finishing the booking");
+      }
+      else
+      {
+        return BadRequest("You need to check your Working State");
+      }
+    }
+
+
+    [HttpPut("working-state")]
+    [Authorize(Roles = "worker")]
+    public async Task<ActionResult> SwitchWorkingStateOfWorker()
+    {
+      var userId = User.FindFirst("userId")?.Value;
+      var worker = await _workerRepository.GetWorkerEntityByIdAsync(int.Parse(userId));
+
+      if (worker is null) return NotFound();
+
+      if (worker.WorkingState.Equals("working")) return BadRequest("You are working so that you can not do it.");
+
+      if (worker.WorkingState.Equals("free"))
+      {
+        worker.WorkingState = "off";
+      }
+      else
+      {
+        worker.WorkingState = "free";
+      }
+
+      if (await _workerRepository.SaveAllAsync()) return Ok();
+        return BadRequest("Problem switching state");
+    }
   }
 }
