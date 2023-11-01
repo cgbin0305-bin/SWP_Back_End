@@ -10,7 +10,6 @@ using API.Helper;
 using AutoMapper;
 using Errors;
 using System.Text.Json;
-using CloudinaryDotNet.Actions;
 namespace API.Controllers
 {
     public class AccountController : BaseApiController
@@ -35,8 +34,6 @@ namespace API.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<TokenDto>> Register(RegisterDto registerDto)
         {
-
-
             // Check if there email or phone is exist
             if (await _userRepository.CheckUserExistAsync(registerDto.Email, registerDto.Phone))
             {
@@ -235,7 +232,6 @@ namespace API.Controllers
         {
             var userEmail = JsonSerializer.Serialize(body);
             userEmail = userEmail.Substring(1, userEmail.Length - 2);
-            System.Console.WriteLine(userEmail);
             var user = await _userRepository.GetUserEntityByEmailAsync(userEmail);
             if (user == null)
             {

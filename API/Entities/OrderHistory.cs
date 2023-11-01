@@ -20,7 +20,7 @@ namespace API.Entities
         public string GuestPhone { set; get; }
         [Required]
         public string GuestAddress { set; get; }
-        public string Status { get; set; } = "pending"; // (pending, inprogress, finished)
+        public string Status { get; set; } = "pending"; // (pending, inprogress, finished, reject)
         public int WorkerId { set; get; }
 
         [ForeignKey("WorkerId")]

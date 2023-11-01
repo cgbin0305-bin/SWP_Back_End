@@ -215,9 +215,9 @@ namespace API.Controllers
       if (orderOfWorker is null) return NotFound();
 
       if (orderOfWorker.WorkerId != worker.Id) return BadRequest("You are not a worker to serve this order");
-      if (orderOfWorker.Status.Equals("finished"))
+      if (orderOfWorker.Status.Equals("finished") || orderOfWorker.Status.Equals("reject"))
       {
-        return BadRequest("This order is already finished.");
+        return BadRequest("This order has already been resolved");
       }
       else if (orderOfWorker.Status.Equals("pending") && worker.WorkingState.Equals("working"))
       {
@@ -255,12 +255,12 @@ namespace API.Controllers
       }
     }
 
-    [HttpPut("cancel-order/{orderId}")]
+    [HttpDelete("cancel-order/{orderId}")]
     [Authorize(Roles = "worker")]
     public async Task<ActionResult> CancelOrderOfWorker(int orderId)
     {
       var userId = User.FindFirst("userId")?.Value;
-      var worker = await _workerRepository.GetWorkerEntityByIdAsync(int.Parse(userId), includeOrderHistories: true);
+      var worker = await _workerRepository.GetWorkerEntityByIdAsync(int.Parse(userId));
 
       if (worker is null) return NotFound();
 
@@ -269,9 +269,9 @@ namespace API.Controllers
 
       if (orderOfWorker.WorkerId != worker.Id) return BadRequest("You are not a worker to serve this order");
 
-      if (orderOfWorker.Status.Equals("finished"))
+      if (orderOfWorker.Status.Equals("finished") || orderOfWorker.Status.Equals("reject"))
       {
-        return BadRequest("This order is already finished.");
+        return BadRequest("This has already been resolved");
       }
       else if (orderOfWorker.Status.Equals("inprogress") && worker.WorkingState.Equals("working"))
       {
@@ -279,7 +279,7 @@ namespace API.Controllers
       }
       else if (orderOfWorker.Status.Equals("pending") && worker.WorkingState.Equals("working"))
       {
-        worker.OrderHistories.Remove(orderOfWorker);
+        orderOfWorker.Status = "reject";
         if (await _workerRepository.SaveAllAsync())
         {
           // Send Mail for user when the worker reject the order

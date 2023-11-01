@@ -33,6 +33,7 @@ namespace API.Data
         public async Task<IEnumerable<OrderHistoryDto>> GetAllOrderHistoriesAsync()
         {
             return await _context.OrderHistories
+                    .OrderByDescending(x => x.Date)
                     .ProjectTo<OrderHistoryDto>(_mapper.ConfigurationProvider)
                     .ToListAsync();
         }
@@ -52,13 +53,17 @@ namespace API.Data
             || x.Worker.User.Name.ToLower().Contains(keyword)
             || x.Status.Contains(keyword));
 
-            return await query.ProjectTo<OrderHistoryDto>(_mapper.ConfigurationProvider).ToListAsync();
+            return await query
+            .OrderByDescending(x => x.Date)
+            .ProjectTo<OrderHistoryDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
         }
 
         public async Task<IEnumerable<OrderHistoryOfUserDto>> GetOrderHistoriesByEmailAsync(string email, string phone)
         {
             return await _context.OrderHistories
             .Where(x => x.GuestEmail == email && x.GuestPhone == phone)
+            .OrderByDescending(x => x.Date)
             .ProjectTo<OrderHistoryOfUserDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
         }
