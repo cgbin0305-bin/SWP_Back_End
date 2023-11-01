@@ -8,6 +8,8 @@ using System.Security.Claims;
 using AutoMapper;
 using API.Entities;
 using Microsoft.VisualBasic;
+using API.Services;
+using API.Errors;
 
 
 namespace API.Controllers
@@ -18,13 +20,15 @@ namespace API.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IWorkerRepository _workerRepository;
         private readonly IMapper _mapper;
+        private readonly ISendMailService _sendMailService;
 
-        public OrderHistoryController(IOrderHistoryRepository orderHistoryRepository, IUserRepository userRepository, IWorkerRepository workerRepository, IMapper mapper)
+        public OrderHistoryController(IOrderHistoryRepository orderHistoryRepository, IUserRepository userRepository, IWorkerRepository workerRepository, IMapper mapper, ISendMailService sendMailService)
         {
             _orderHistoryRepository = orderHistoryRepository;
             _userRepository = userRepository;
             _workerRepository = workerRepository;
             _mapper = mapper;
+            _sendMailService = sendMailService;
         }
 
         [HttpGet]
@@ -36,7 +40,7 @@ namespace API.Controllers
             {
                 return BadRequest("No OrderHistory!");
             }
-            
+
             var resultPage = MapEntityHelper.MapEntityPaginationAsync(pageString, result, 25f);
             return Ok(resultPage);
         }
@@ -53,7 +57,7 @@ namespace API.Controllers
 
             var orderHistories = await _orderHistoryRepository.SearchOrderHistoriesAsync(keyword.ToLower());
 
-           var resultPage = MapEntityHelper.MapEntityPaginationAsync(pageString, orderHistories, 25f);
+            var resultPage = MapEntityHelper.MapEntityPaginationAsync(pageString, orderHistories, 25f);
 
             return Ok(resultPage);
         }
@@ -61,6 +65,11 @@ namespace API.Controllers
         [HttpPost("hire")]
         public async Task<ActionResult<OrderHistoryDto>> HireWorker(HireWorkerInfoDto dto)
         {
+            var worker = await _workerRepository.GetWorkerEntityByIdAsync(dto.WorkerId, true, true);
+            var workerInfo = await _userRepository.GetUserByIdAsync(worker.Id);
+            if (worker == null) return BadRequest("Worker does not exist");
+            if (worker.WorkingState == "working") throw new WorkerIsWorkingException();
+
             var userId = User.FindFirst("userId")?.Value;
             if (!string.IsNullOrEmpty(userId))
             {
@@ -75,13 +84,26 @@ namespace API.Controllers
             {
                 return BadRequest("Some fields of Guest are empty");
             }
+            string path = @"MailContent\HireWorker.html";
+            // set up to send mail 
+            string bodyContent = ReadFileHelper.ReadFile(path);
+            bodyContent = bodyContent.Replace("GuestName", dto.GuestName);
+            bodyContent = bodyContent.Replace("GuestPhone", dto.GuestPhone);
+            bodyContent = bodyContent.Replace("GuestAddress", dto.GuestAddress);
+            bodyContent = bodyContent.Replace("WorkerName", workerInfo.Name);
+            var mailContent = new MailContent()
+            {
+                Subject = "Hiring Request: Guest Information",
+                Body = bodyContent,
+                To = workerInfo.Email
+            };
+            // send mail
+            await _sendMailService.SendMailAsync(mailContent);
 
             var orderHistory = _mapper.Map<OrderHistory>(dto);
 
-            var worker = await _workerRepository.GetWorkerEntityByIdAsync(dto.WorkerId, true, true);
 
-            if(worker == null) return BadRequest("Worker does not exist");
-
+            worker.WorkingState = "working";
             worker.OrderHistories.Add(orderHistory);
 
             if (await _workerRepository.SaveAllAsync())
@@ -94,32 +116,47 @@ namespace API.Controllers
         }
 
         [HttpPost("review")]
-        public async Task<ActionResult> PostReviewForWorker(ReviewOfUserDto reviewOfUserDto) {
+        public async Task<ActionResult> PostReviewForWorker(ReviewOfUserDto reviewOfUserDto)
+        {
             var userId = User.FindFirst("userId")?.Value;
-            if(!string.IsNullOrEmpty(userId)) {
+            if (!string.IsNullOrEmpty(userId))
+            {
                 var user = await _userRepository.GetUserEntityByIdAsync(int.Parse(userId));
                 reviewOfUserDto.Email = user.Email;
             }
 
             var orderHistory = await _orderHistoryRepository.GetOrderHistoryAsync(reviewOfUserDto.OrderId);
 
-            if(orderHistory is null) return NotFound();
+            if (orderHistory is null) return NotFound();
 
-            if(orderHistory.GuestEmail != reviewOfUserDto.Email) return BadRequest("You can not review this because you are not the one booking the service.");
+            if (orderHistory.GuestEmail != reviewOfUserDto.Email) return BadRequest("You can not review this because you are not the one booking the service.");
 
-            var newReview = new Review{
+            var newReview = new Review
+            {
                 Id = orderHistory.Id,
                 Content = reviewOfUserDto.ReviewContent,
-                Rate = reviewOfUserDto.Rate > 5 || reviewOfUserDto.Rate < 0 ? 0: reviewOfUserDto.Rate,
+                Rate = reviewOfUserDto.Rate > 5 || reviewOfUserDto.Rate < 0 ? 0 : reviewOfUserDto.Rate,
                 Date = DateTime.UtcNow
             };
 
             orderHistory.Review = newReview;
 
-            if(await _userRepository.SaveChangeAsync()) return Ok();
+            if (await _userRepository.SaveChangeAsync()) return Ok();
 
             return BadRequest("Problem sending a review");
-            
+
+        }
+
+        [HttpGet("{orderId}")]
+        public async Task<ActionResult<OrderHistoryOfUserDto>> GetOrderByOrderIdOfUser(int orderId)
+        {
+            //get order
+            var order = await _orderHistoryRepository.GetOrderHistoryAsync(orderId);
+            if (order is null)
+            {
+                return NotFound();
+            }
+            return _mapper.Map<OrderHistoryOfUserDto>(order);
         }
     }
 }

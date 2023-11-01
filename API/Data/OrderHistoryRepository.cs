@@ -20,10 +20,14 @@ namespace API.Data
             _mapper = mapper;
         }
 
-        public async Task<OrderHistory> GetOrderHistoryAsync(int OrderId) {
-        return await _context.OrderHistories
-            .Where(x => x.Id == OrderId)
-            .SingleOrDefaultAsync();
+        public async Task<OrderHistory> GetOrderHistoryAsync(int OrderId)
+        {
+            return await _context.OrderHistories
+                .Include(x => x.Worker)
+                    .ThenInclude(x => x.User)
+                .Include(x => x.Review)
+                .Where(x => x.Id == OrderId)
+                .SingleOrDefaultAsync();
         }
 
         public async Task<IEnumerable<OrderHistoryDto>> GetAllOrderHistoriesAsync()
@@ -47,7 +51,8 @@ namespace API.Data
             || x.WorkerName.ToLower().Contains(keyword));
         }
 
-        public async Task<IEnumerable<OrderHistoryOfUserDto>> GetOrderHistoriesByEmailAsync(string email, string phone) {
+        public async Task<IEnumerable<OrderHistoryOfUserDto>> GetOrderHistoriesByEmailAsync(string email, string phone)
+        {
             return await _context.OrderHistories
             .Where(x => x.GuestEmail == email && x.GuestPhone == phone)
             .ProjectTo<OrderHistoryOfUserDto>(_mapper.ConfigurationProvider)
