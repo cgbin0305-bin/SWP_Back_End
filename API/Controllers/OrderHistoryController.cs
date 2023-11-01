@@ -68,7 +68,7 @@ namespace API.Controllers
             var worker = await _workerRepository.GetWorkerEntityByIdAsync(dto.WorkerId, true, true);
             var workerInfo = await _userRepository.GetUserByIdAsync(worker.Id);
             if (worker == null) return BadRequest("Worker does not exist");
-            if (worker.WorkingState == "working") throw new WorkerIsWorkingException();
+            if (worker.WorkingState == "working" || worker.WorkingState == "off") throw new WorkerIsWorkingException();
 
             var userId = User.FindFirst("userId")?.Value;
             if (!string.IsNullOrEmpty(userId))

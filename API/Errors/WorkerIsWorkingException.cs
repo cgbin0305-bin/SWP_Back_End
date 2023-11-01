@@ -7,7 +7,7 @@ namespace API.Errors
 {
     public class WorkerIsWorkingException : Exception
     {
-        public WorkerIsWorkingException() : base("Worker is working on order now.")
+        public WorkerIsWorkingException() : base("Worker is working on order or off now.")
         {
 
         }

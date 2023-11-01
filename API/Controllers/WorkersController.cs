@@ -280,6 +280,7 @@ namespace API.Controllers
       else if (orderOfWorker.Status.Equals("pending") && worker.WorkingState.Equals("working"))
       {
         orderOfWorker.Status = "reject";
+        worker.WorkingState = "off";
         if (await _workerRepository.SaveAllAsync())
         {
           // Send Mail for user when the worker reject the order
