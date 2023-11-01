@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using DTOs;
 using Org.BouncyCastle.Asn1.Esf;
+using API.Services;
 
 namespace API.Controllers
 {
@@ -16,9 +17,11 @@ namespace API.Controllers
     private readonly IUserRepository _userRepository;
     private readonly IPhotoService _photoService;
     private readonly IOrderHistoryRepository _orderHistoryRepository;
+    private readonly ISendMailService _sendMailService;
 
-    public WorkersController(IWorkerRepository workerRepository, IMapper mapper, IUserRepository userRepository, IPhotoService photoService, IOrderHistoryRepository orderHistoryRepository)
+    public WorkersController(IWorkerRepository workerRepository, IMapper mapper, IUserRepository userRepository, IPhotoService photoService, IOrderHistoryRepository orderHistoryRepository, ISendMailService sendMailService)
     {
+      _sendMailService = sendMailService;
       _workerRepository = workerRepository;
       _mapper = mapper;
       _userRepository = userRepository;
@@ -201,7 +204,7 @@ namespace API.Controllers
 
     [HttpPut("order/{orderId}")]
     [Authorize(Roles = "worker")]
-    public async Task<ActionResult> ApproachOrFinishOrderOfWorker(int orderId)
+    public async Task<ActionResult> ApproveOrFinishOrderOfWorker(int orderId)
     {
       var userId = User.FindFirst("userId")?.Value;
       var worker = await _workerRepository.GetWorkerEntityByIdAsync(int.Parse(userId));
@@ -211,8 +214,7 @@ namespace API.Controllers
       var orderOfWorker = await _orderHistoryRepository.GetOrderHistoryAsync(orderId);
       if (orderOfWorker is null) return NotFound();
 
-      if(orderOfWorker.WorkerId != worker.Id) return BadRequest("You are not a worker to serve this order");
-
+      if (orderOfWorker.WorkerId != worker.Id) return BadRequest("You are not a worker to serve this order");
       if (orderOfWorker.Status.Equals("finished"))
       {
         return BadRequest("This order is already finished.");
@@ -220,15 +222,29 @@ namespace API.Controllers
       else if (orderOfWorker.Status.Equals("pending") && worker.WorkingState.Equals("working"))
       {
         orderOfWorker.Status = "inprogress";
-        if (await _workerRepository.SaveAllAsync()) return Ok("The worker approaches booking successfully");
-        return BadRequest("Problem approaching the booking");
+        if (await _workerRepository.SaveAllAsync()) return Ok("The worker approve booking successfully");
+
+        return BadRequest("Problem approve the booking");
       }
       else if (orderOfWorker.Status.Equals("inprogress") && worker.WorkingState.Equals("working"))
       {
         orderOfWorker.Status = "finished";
         worker.WorkingState = "free";
-        if (await _workerRepository.SaveAllAsync()) {
+        if (await _workerRepository.SaveAllAsync())
+        {
           // Send Mail for user when finish the order
+          string path = @"MailContent\Review.html";
+          // set up to send mail 
+          string bodyContent = ReadFileHelper.ReadFile(path);
+          bodyContent = bodyContent.Replace("GuestName", orderOfWorker.GuestName);
+          var mailContent = new MailContent()
+          {
+            Subject = "Tell Us How We Did - Leave a Review",
+            Body = bodyContent,
+            To = orderOfWorker.GuestEmail
+          };
+          // send mail
+          await _sendMailService.SendMailAsync(mailContent);
           return Ok("The worker finishes booking successfully");
         }
         return BadRequest("Problem finishing the booking");

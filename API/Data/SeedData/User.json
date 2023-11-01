@@ -58,7 +58,7 @@
   {
     "Name": "Thai Son",
     "Phone": "07945123478",
-    "Email": "thaison@example.com",
+    "Email": "cgbin0305@gmail.com",
     "Address": "Quan Go Vap, Thanh Pho Ho Chi Minh",
     "Role": "user",
     "Version": "00000000-0000-0000-0000-000000000000"
@@ -82,13 +82,13 @@
   {
     "Name": "Gia Bao",
     "Phone": "548923101",
-    "Email": "hoanghuy@example.com",
+    "Email": "0788909221ndhh@gmail.com",
     "Address": "Quan 2, Thanh Pho Ho Chi Minh",
     "Role": "worker",
     "Worker": {
       "Fee": 25000,
       "Status": true,
-      "WorkingState": "working",
+      "WorkingState": "free",
       "Workers_Chores": [
         {
           "ChoreId": 1,
