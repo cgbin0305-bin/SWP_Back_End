@@ -167,7 +167,9 @@ namespace API.Controllers
 
       if (orderhistories is null || orderhistories.Count == 0) return BadRequest("This worker has never been scheduled");
 
-      var result = orderhistories.Select(x => _mapper.Map<OrderHistoryOfWorkerDto>(x)).ToList();
+      var result = orderhistories.Select(x => _mapper.Map<OrderHistoryOfWorkerDto>(x))
+        .OrderByDescending(x=> x.Date)
+        .ToList();
 
       return Ok(result);
     }
