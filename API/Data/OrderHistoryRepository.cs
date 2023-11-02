@@ -67,5 +67,16 @@ namespace API.Data
             .ProjectTo<OrderHistoryOfUserDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
         }
+
+        public (int, int) CountOrderAndRateOfWorker(int workerId) {
+            var listOrder = _context.OrderHistories.Where(x => x.WorkerId == workerId).Select(x => x.Id).ToList();
+
+            if(listOrder.Count() == 0) return (0,0);
+
+            var rate = _context.Reviews
+                .Where(x => listOrder.Contains(x.Id))
+                .Select(x => x.Rate).ToList();
+            return (listOrder.Count(), (int)rate.Average());
+        }
     }
 }

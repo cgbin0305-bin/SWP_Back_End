@@ -13,5 +13,7 @@ namespace API.Interfaces
         Task<IEnumerable<OrderHistoryOfUserDto>> GetOrderHistoriesByEmailAsync(string email, string phone);
 
         Task<OrderHistory> GetOrderHistoryAsync(int OrderId);
+
+        (int, int) CountOrderAndRateOfWorker(int workerId);
     }
 }

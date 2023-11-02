@@ -32,9 +32,8 @@ namespace API.Controllers
     [HttpGet("{id}")]
     public async Task<ActionResult<WorkerDto>> GetWorkerById(int id)
     {
-      var role = User.FindFirst("role")?.Value;
       // get workers based on there id
-      var worker = await _workerRepository.GetWorkerByIdAsync(id, role);
+      var worker = await _workerRepository.GetWorkerByIdAsync(id);
 
       // check if worker is null
       if (worker is null)
@@ -43,6 +42,28 @@ namespace API.Controllers
       }
 
       return Ok(worker);
+    }
+
+    [HttpGet("info")]
+    public async Task<ActionResult<WorkerDto>> GetWorkerInfoById()
+    {
+      var userId = User.FindFirst("userId")?.Value;
+      // get workers based on there id
+      var worker = await _workerRepository.GetWorkerEntityByIdAsync(int.Parse(userId),false,true,true);
+
+      // check if worker is null
+      if (worker is null)
+      {
+        return BadRequest("Worker does not exist");
+      }
+
+      var dto = _mapper.Map<WorkerDto>(worker);
+      var result = _orderHistoryRepository.CountOrderAndRateOfWorker(worker.Id);
+
+      dto.CountOrder = result.Item1;
+      dto.AverageRate = result.Item2;
+
+      return Ok(dto);
     }
 
     [HttpGet]
