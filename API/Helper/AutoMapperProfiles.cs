@@ -39,7 +39,6 @@ public class AutoMapperProfiles : Profile
         })
         .ForMember(dest => dest.Workers_Chores, opt => opt.MapFrom(src => src.Chores.Select(x => new Workers_Chores { WorkerId = src.Id, ChoreId = x })))
         .ForMember(dest => dest.Version, opt => opt.Ignore());
-
         CreateMap<RegisterDto, User>()
         .BeforeMap((src, dest) =>
         {
@@ -47,16 +46,6 @@ public class AutoMapperProfiles : Profile
             dest.PasswordHash = hmac.Item1;
             dest.PasswordSalt = hmac.Item2;
         });
-
-        // CreateMap<AccountUpdateDto, User>()
-        // .BeforeMap((src, dest) =>
-        // {
-        //     var hmac = src.Password.GetPasswordHash();
-        //     dest.PasswordHash = hmac.Item1;
-        //     dest.PasswordSalt = hmac.Item2;
-        // })
-        // .ForMember(dest => dest.Version, opt => opt.Ignore());
-
         CreateMap<OrderHistory, OrderHistoryOfWorkerDto>()
             .ForMember(dest => dest.Review, opt => opt.MapFrom(src => src.Review))
             .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => src.Review != null ? src.Review.Rate : 0));
