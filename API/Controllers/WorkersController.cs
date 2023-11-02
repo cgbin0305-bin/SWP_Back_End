@@ -32,8 +32,9 @@ namespace API.Controllers
     [HttpGet("{id}")]
     public async Task<ActionResult<WorkerDto>> GetWorkerById(int id)
     {
+      var role = User.FindFirst("role")?.Value;
       // get workers based on there id
-      var worker = await _workerRepository.GetWorkerByIdAsync(id);
+      var worker = await _workerRepository.GetWorkerByIdAsync(id, role);
 
       // check if worker is null
       if (worker is null)
@@ -168,7 +169,7 @@ namespace API.Controllers
       if (orderhistories is null || orderhistories.Count == 0) return BadRequest("This worker has never been scheduled");
 
       var result = orderhistories.Select(x => _mapper.Map<OrderHistoryOfWorkerDto>(x))
-        .OrderByDescending(x=> x.Date)
+        .OrderByDescending(x=> x.Id)
         .ToList();
 
       return Ok(result);

@@ -43,13 +43,20 @@ public class WorkerRepository : IWorkerRepository
             .ToListAsync();
     }
 
-    public async Task<WorkerDto> GetWorkerByIdAsync(int id)
+    public async Task<WorkerDto> GetWorkerByIdAsync(int id, string role)
     {
-        return await _context.Workers
-            .Where(x => x.Id == id && x.Status && x.WorkingState == "free")
-            .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
-            .AsSplitQuery()
-            .SingleOrDefaultAsync();
+        var query = _context.Workers
+                    .Where(x => x.Id == id && x.Status)
+                    .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
+                    .AsSplitQuery()
+                    .AsQueryable();
+
+        if (!role.Equals("worker"))
+        {
+            query = query.Where(x => x.WorkingState == "free");
+        }
+
+        return await query.SingleOrDefaultAsync();
     }
 
     public async Task<Worker> GetWorkerEntityByIdAsync(int id, bool includeOrderHistories = false, bool includeUser = false, bool includeWorkersChores = false)

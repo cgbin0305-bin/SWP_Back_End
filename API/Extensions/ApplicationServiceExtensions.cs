@@ -31,6 +31,7 @@ public static class ApplicationServiceExtensions
         // add the IOption CloudinarySettings base on which being setup in appsettings.json
         services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
         services.AddScoped<IPhotoService, PhotoService>();
+        services.AddScoped<IChoresRepository,ChoresRepository>();
         return services;
     }
 }
