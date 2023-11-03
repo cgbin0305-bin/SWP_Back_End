@@ -23,7 +23,7 @@ namespace API.Entities
         public List<OrderHistory> OrderHistories { set; get; }
 
         public List<Workers_Chores> Workers_Chores { set; get; }
-
+        public List<TrackingWorker> TrackingWorker { get; set; }
         public User User { get; set; }
 
         [ConcurrencyCheck]
