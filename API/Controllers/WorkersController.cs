@@ -7,6 +7,8 @@ using AutoMapper;
 using DTOs;
 using Org.BouncyCastle.Asn1.Esf;
 using API.Services;
+using CloudinaryDotNet.Actions;
+using API.Entities;
 
 namespace API.Controllers
 {
@@ -49,7 +51,7 @@ namespace API.Controllers
     {
       var userId = User.FindFirst("userId")?.Value;
       // get workers based on there id
-      var worker = await _workerRepository.GetWorkerEntityByIdAsync(int.Parse(userId),false,true,true);
+      var worker = await _workerRepository.GetWorkerEntityByIdAsync(int.Parse(userId), false, true, true);
 
       // check if worker is null
       if (worker is null)
@@ -190,7 +192,7 @@ namespace API.Controllers
       if (orderhistories is null || orderhistories.Count == 0) return BadRequest("This worker has never been scheduled");
 
       var result = orderhistories.Select(x => _mapper.Map<OrderHistoryOfWorkerDto>(x))
-        .OrderByDescending(x=> x.Id)
+        .OrderByDescending(x => x.Id)
         .ToList();
 
       return Ok(result);
@@ -205,7 +207,7 @@ namespace API.Controllers
 
       if (worker is null) return NotFound();
 
-      if (worker.PhotoUrl != null)
+      if (!string.IsNullOrEmpty(worker.PhotoUrl))
       {
         var deletionResult = await _photoService.DeletePhotoAsync(worker.PublicId);
         if (deletionResult.Error != null) return BadRequest(deletionResult.Error.Message);
@@ -353,6 +355,37 @@ namespace API.Controllers
 
       if (await _workerRepository.SaveAllAsync()) return Ok();
       return BadRequest("Problem switching state");
+    }
+
+    [HttpPost("update")]
+    [Authorize(Roles = "worker")]
+    public async Task<ActionResult> TrackingWorkerInfo(WorkerRegisterDto workerRegisterDto)
+    {
+      var workerId = Int32.Parse(User.FindFirst("userId")?.Value);
+      //Get worker entity
+
+      var worker = await _workerRepository.GetWorkerEntityByIdAsync(workerId, includeTrackingWorker: true);
+      if (worker is null) return NotFound();
+      // add new info into database
+      var list = workerRegisterDto.ChoresList.Select(chore =>
+      {
+        return new TrackingWorker
+        {
+          WorkerId = workerId,
+          ChoreId = chore,
+          Fee = workerRegisterDto.Fee
+        };
+      }).ToList();
+      if (worker.TrackingWorker != null)
+      {
+        worker.TrackingWorker = list;
+      }
+      else
+      {
+        worker.TrackingWorker.AddRange(list);
+      }
+      if (await _workerRepository.SaveAllAsync()) return Ok();
+      return BadRequest("Problem in request update worker info");
     }
   }
 }

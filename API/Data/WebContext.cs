@@ -13,7 +13,7 @@ namespace API.Entities
         public DbSet<Workers_Chores> Workers_Chores { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Review> Reviews { get; set; }
-
+        public DbSet<TrackingWorker> TrackingWorker { get; set; }
         public WebContext(DbContextOptions options) : base(options)
         {
         }
@@ -42,7 +42,10 @@ namespace API.Entities
                 .HasForeignKey<Review>(r => r.Id)
                 .OnDelete(DeleteBehavior.NoAction);
             });
+            modelBuilder.Entity<TrackingWorker>(entity =>
+            {
+                entity.HasKey(e => new { e.WorkerId, e.ChoreId });
+            });
         }
-
     }
 }

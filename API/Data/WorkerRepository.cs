@@ -52,7 +52,7 @@ public class WorkerRepository : IWorkerRepository
                     .SingleOrDefaultAsync();
     }
 
-    public async Task<Worker> GetWorkerEntityByIdAsync(int id, bool includeOrderHistories = false, bool includeUser = false, bool includeWorkersChores = false)
+    public async Task<Worker> GetWorkerEntityByIdAsync(int id, bool includeOrderHistories = false, bool includeUser = false, bool includeWorkersChores = false, bool includeTrackingWorker = false)
     {
         var query = _context.Workers.Where(x => x.Id == id);
 
@@ -72,7 +72,10 @@ public class WorkerRepository : IWorkerRepository
             query = query.Include(x => x.Workers_Chores)
                 .ThenInclude(x => x.Chore);
         }
-
+        if (includeTrackingWorker)
+        {
+            query = query.Include(x => x.TrackingWorker);
+        }
         return await query.FirstOrDefaultAsync();
     }
 
