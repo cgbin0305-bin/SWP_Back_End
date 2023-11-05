@@ -133,4 +133,39 @@ public class WorkerRepository : IWorkerRepository
         }
         return false;
     }
+
+    public async Task<IEnumerable<Worker>> GetWorkersEntityInTrackingWorkerAsync(bool includeOrderHistories = false, bool includeUser = false, bool includeWorkersChores = false, bool includeTrackingWorker = false)
+    {
+        var workersId = _context.TrackingWorker.GroupBy(x => x.WorkerId);
+
+        List<Worker> list = new List<Worker>();
+
+        foreach (var workerId in workersId)
+        {
+            var query = _context.Workers.Where(x => x.Id == workerId.Key);
+            if (includeOrderHistories)
+            {
+                query = query.Include(x => x.OrderHistories)
+                   .ThenInclude(x => x.Review);
+            }
+
+            if (includeUser)
+            {
+                query = query.Include(x => x.User);
+            }
+
+            if (includeWorkersChores)
+            {
+                query = query.Include(x => x.Workers_Chores)
+                    .ThenInclude(x => x.Chore);
+            }
+            if (includeTrackingWorker)
+            {
+                query = query.Include(x => x.TrackingWorker);
+            }
+            list.Add(await query.SingleOrDefaultAsync());
+        }
+
+        return list;
+    }
 }

@@ -387,5 +387,31 @@ namespace API.Controllers
       if (await _workerRepository.SaveAllAsync()) return Ok();
       return BadRequest("Problem in request update worker info");
     }
+
+    [HttpGet("admin/track")]
+    [Authorize(Roles = "admin")]
+    public async Task<ActionResult<List<Object>>> RequestWorkerInfoAdminView()
+    {
+      var workers = await _workerRepository.GetWorkersEntityInTrackingWorkerAsync(includeTrackingWorker: true, includeUser: true, includeWorkersChores: true);
+      if (workers.Count() == 0)
+      {
+        return BadRequest("Not Tracking Workers were found");
+      }
+      List<object> resultList = new();
+      foreach (var worker in workers)
+      {
+        var result = new
+        {
+          WorkerId = worker.Id,
+          WorkerName = worker.User.Name,
+          OldFee = worker.Fee,
+          NewFee = worker.TrackingWorker.FirstOrDefault(x => x.WorkerId == worker.Id).Fee,
+          OldChores = worker.Workers_Chores.Where(x => x.WorkerId == worker.Id).Select(x => x.Chore).ToList(),
+          NewChores = worker.TrackingWorker.Where(x => x.WorkerId == worker.Id).Select(x => x.Chore).ToList(),
+        };
+        resultList.Add(result);
+      }
+      return Ok(resultList);
+    }
   }
 }

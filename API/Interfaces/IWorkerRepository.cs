@@ -16,6 +16,7 @@ public interface IWorkerRepository
     Task<IEnumerable<WorkerDto>> SearchWorkersByAdminAsync(string keyword);
 
     Task<IEnumerable<WorkerDto>> GetAllWorkersForAdminAsync();
+    Task<IEnumerable<Worker>> GetWorkersEntityInTrackingWorkerAsync(bool includeOrderHistories = false, bool includeUser = false, bool includeWorkersChores = false, bool includeTrackingWorker = false);
 
     Task<Worker> GetWorkerEntityByIdAsync(int id, bool includeOrderHistories = false, bool includeUser = false, bool includeWorkersChores = false, bool includeTrackingWorker = false);
 
