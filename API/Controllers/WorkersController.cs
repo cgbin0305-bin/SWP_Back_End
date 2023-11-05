@@ -9,6 +9,7 @@ using Org.BouncyCastle.Asn1.Esf;
 using API.Services;
 using CloudinaryDotNet.Actions;
 using API.Entities;
+using Microsoft.VisualBasic;
 
 namespace API.Controllers
 {
@@ -361,7 +362,7 @@ namespace API.Controllers
     [Authorize(Roles = "worker")]
     public async Task<ActionResult> TrackingWorkerInfo(WorkerRegisterDto workerRegisterDto)
     {
-      var workerId = Int32.Parse(User.FindFirst("userId")?.Value);
+      var workerId = int.Parse(User.FindFirst("userId")?.Value);
       //Get worker entity
 
       var worker = await _workerRepository.GetWorkerEntityByIdAsync(workerId, includeTrackingWorker: true);
@@ -412,6 +413,33 @@ namespace API.Controllers
         resultList.Add(result);
       }
       return Ok(resultList);
+    }
+
+    [HttpPut("admin/submit")]
+    [Authorize(Roles ="admin")]
+    public async Task<ActionResult> ApproveOrRejectWorkerUpdate(TrackingWorderDto dto) {
+      var worker =await _workerRepository.GetWorkerEntityByIdAsync(dto.WorkerId, includeTrackingWorker: true, includeWorkersChores: true);
+
+      if(worker is null) return NotFound();
+
+      if(worker.TrackingWorker is null) return BadRequest("This worker does not have a request to update their update.");
+
+      if(dto.IsApprove) {
+        var NewFee = worker.TrackingWorker.FirstOrDefault(x => x.WorkerId == dto.WorkerId).Fee;
+        var listOfNewChores = worker.TrackingWorker.Select(x => new Workers_Chores {
+          WorkerId = dto.WorkerId,
+          ChoreId = x.ChoreId
+        }).ToList();
+
+        worker.Workers_Chores = listOfNewChores;
+        worker.Fee = NewFee;
+      }
+      
+      worker.TrackingWorker.RemoveAll(x => x.WorkerId == dto.WorkerId);
+
+      if(await _workerRepository.SaveAllAsync()) return Ok();
+
+      return BadRequest("Problem in approving or rejecting worker update");
     }
   }
 }
