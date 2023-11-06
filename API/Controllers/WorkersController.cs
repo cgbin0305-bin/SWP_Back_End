@@ -362,7 +362,7 @@ namespace API.Controllers
     [Authorize(Roles = "worker")]
     public async Task<ActionResult> TrackingWorkerInfo(WorkerRegisterDto workerRegisterDto)
     {
-      var workerId = int.Parse(User.FindFirst("userId")?.Value);
+      var workerId = Int32.Parse(User.FindFirst("userId")?.Value);
       //Get worker entity
 
       var worker = await _workerRepository.GetWorkerEntityByIdAsync(workerId, includeTrackingWorker: true);
@@ -379,6 +379,12 @@ namespace API.Controllers
       }).ToList();
       if (worker.TrackingWorker != null)
       {
+        var chores = worker.TrackingWorker.Where(x => x.WorkerId == workerId).Select(x => x.ChoreId);
+        var check = chores.Count() == workerRegisterDto.ChoresList.Count() && (!chores.Except(workerRegisterDto.ChoresList).Any() || !workerRegisterDto.ChoresList.Except(chores).Any());
+        if (check)
+        {
+          return Ok();
+        }
         worker.TrackingWorker = list;
       }
       else
@@ -407,8 +413,8 @@ namespace API.Controllers
           WorkerName = worker.User.Name,
           OldFee = worker.Fee,
           NewFee = worker.TrackingWorker.FirstOrDefault(x => x.WorkerId == worker.Id).Fee,
-          OldChores = worker.Workers_Chores.Where(x => x.WorkerId == worker.Id).Select(x => x.Chore).ToList(),
-          NewChores = worker.TrackingWorker.Where(x => x.WorkerId == worker.Id).Select(x => x.Chore).ToList(),
+          OldChores = worker.Workers_Chores.Where(x => x.WorkerId == worker.Id).Select(x => _mapper.Map<HouseHoldChoresDto>(x.Chore)).ToList(),
+          NewChores = worker.TrackingWorker.Where(x => x.WorkerId == worker.Id).Select(x => _mapper.Map<HouseHoldChoresDto>(x.Chore)).ToList(),
         };
         resultList.Add(result);
       }
@@ -416,17 +422,20 @@ namespace API.Controllers
     }
 
     [HttpPut("admin/submit")]
-    [Authorize(Roles ="admin")]
-    public async Task<ActionResult> ApproveOrRejectWorkerUpdate(TrackingWorderDto dto) {
-      var worker =await _workerRepository.GetWorkerEntityByIdAsync(dto.WorkerId, includeTrackingWorker: true, includeWorkersChores: true);
+    [Authorize(Roles = "admin")]
+    public async Task<ActionResult> ApproveOrRejectWorkerUpdate(TrackingWorderDto dto)
+    {
+      var worker = await _workerRepository.GetWorkerEntityByIdAsync(dto.WorkerId, includeTrackingWorker: true, includeWorkersChores: true);
 
-      if(worker is null) return NotFound();
+      if (worker is null) return NotFound();
 
-      if(worker.TrackingWorker is null) return BadRequest("This worker does not have a request to update their update.");
+      if (worker.TrackingWorker is null) return BadRequest("This worker does not have a request to update their update.");
 
-      if(dto.IsApprove) {
+      if (dto.IsApprove)
+      {
         var NewFee = worker.TrackingWorker.FirstOrDefault(x => x.WorkerId == dto.WorkerId).Fee;
-        var listOfNewChores = worker.TrackingWorker.Select(x => new Workers_Chores {
+        var listOfNewChores = worker.TrackingWorker.Select(x => new Workers_Chores
+        {
           WorkerId = dto.WorkerId,
           ChoreId = x.ChoreId
         }).ToList();
@@ -434,10 +443,10 @@ namespace API.Controllers
         worker.Workers_Chores = listOfNewChores;
         worker.Fee = NewFee;
       }
-      
+
       worker.TrackingWorker.RemoveAll(x => x.WorkerId == dto.WorkerId);
 
-      if(await _workerRepository.SaveAllAsync()) return Ok();
+      if (await _workerRepository.SaveAllAsync()) return Ok();
 
       return BadRequest("Problem in approving or rejecting worker update");
     }

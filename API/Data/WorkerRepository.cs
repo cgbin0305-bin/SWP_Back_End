@@ -74,7 +74,8 @@ public class WorkerRepository : IWorkerRepository
         }
         if (includeTrackingWorker)
         {
-            query = query.Include(x => x.TrackingWorker);
+            query = query.Include(x => x.TrackingWorker)
+                .ThenInclude(x => x.Chore);
         }
         return await query.FirstOrDefaultAsync();
     }
@@ -161,7 +162,8 @@ public class WorkerRepository : IWorkerRepository
             }
             if (includeTrackingWorker)
             {
-                query = query.Include(x => x.TrackingWorker);
+                query = query.Include(x => x.TrackingWorker)
+                    .ThenInclude(x => x.Chore);
             }
             list.Add(await query.SingleOrDefaultAsync());
         }
