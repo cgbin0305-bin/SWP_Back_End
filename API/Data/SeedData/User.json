@@ -81,7 +81,7 @@
   },
   {
     "Name": "Gia Bao",
-    "Phone": "548923101",
+    "Phone": "0982127392",
     "Email": "0788909221ndhh@gmail.com",
     "Address": "Quan 2, Thanh Pho Ho Chi Minh",
     "Role": "worker",
@@ -567,7 +567,7 @@
     "Name": "Dinh Minh Dung",
     "Phone": "056431256",
     "Email": "minhdung21@example.com",
-    "Address": "Quan binh tan, Thanh Pho Ho Chi Minh",
+    "Address": "Quan Binh Tan, Thanh Pho Ho Chi Minh",
     "Role": "worker",
     "Worker": {
       "Fee": 25000,

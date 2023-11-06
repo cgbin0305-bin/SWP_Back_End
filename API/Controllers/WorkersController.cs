@@ -233,6 +233,9 @@ namespace API.Controllers
     [Authorize(Roles = "worker")]
     public async Task<ActionResult> ApproveOrFinishOrderOfWorker(int orderId)
     {
+      string path = "";
+      // set up to send mail 
+      string bodyContent = "";
       var userId = User.FindFirst("userId")?.Value;
       var worker = await _workerRepository.GetWorkerEntityByIdAsync(int.Parse(userId));
 
@@ -249,7 +252,20 @@ namespace API.Controllers
       else if (orderOfWorker.Status.Equals("pending") && worker.WorkingState.Equals("working"))
       {
         orderOfWorker.Status = "inprogress";
-        if (await _workerRepository.SaveAllAsync()) return Ok("The worker approve booking successfully");
+        if (await _workerRepository.SaveAllAsync())
+        {
+          path = @"MailContent\ApproveHire.html";
+          bodyContent = ReadFileHelper.ReadFile(path);
+          var mailContent = new MailContent()
+          {
+            Subject = "Service Request Approved: Worker Will Arrive Soon",
+            Body = bodyContent,
+            To = orderOfWorker.GuestEmail
+          };
+          // send mail
+          await _sendMailService.SendMailAsync(mailContent);
+          return Ok("The worker approve booking successfully");
+        }
 
         return BadRequest("Problem approve the booking");
       }
@@ -260,9 +276,11 @@ namespace API.Controllers
         if (await _workerRepository.SaveAllAsync())
         {
           // Send Mail for user when finish the order
-          string path = @"MailContent\Review.html";
+          path = @"MailContent\Review.html";
           // set up to send mail 
-          string bodyContent = ReadFileHelper.ReadFile(path);
+          bodyContent = ReadFileHelper.ReadFile(path);
+          string urlReview = "https://localhost:4200/guest/review/" + orderId;
+          bodyContent = bodyContent.Replace("[url_review]", urlReview);
           bodyContent = bodyContent.Replace("GuestName", orderOfWorker.GuestName);
           var mailContent = new MailContent()
           {
