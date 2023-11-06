@@ -23,7 +23,7 @@ namespace API.Data
             foreach (var user in users)
             {
                 using var hmac = new HMACSHA512();
-                user.Name = user.Name.ToLower();
+                user.Name = user.Name;
                 user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("123456"));
                 user.PasswordSalt = hmac.Key;
                 if (user.Role.ToLower() == "worker")

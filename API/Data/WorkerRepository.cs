@@ -105,7 +105,7 @@ public class WorkerRepository : IWorkerRepository
 
     public async Task<IEnumerable<WorkerDto>> SearchWorkersAsync(string keyword)
     {
-        return await SearchQueryWorker(keyword).Where(x => x.Status && x.WorkingState == "free")
+        return await SearchQueryWorker(keyword).Where(x => x.Status && x.WorkingState.ToLower() == "free")
         .ProjectTo<WorkerDto>(_mapper.ConfigurationProvider)
         .ToListAsync();
     }
